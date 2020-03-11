@@ -1,0 +1,254 @@
+---
+title: "stainR Markdown"
+author: "Tim Nieuwenhuis"
+date: "3/11/2020"
+output: html_document
+---
+
+
+#Goals before shiny app:
+Add tissue based information for what tissues are being hit and which ones aren't for cell types
+
+Give option of counts or percent
+
+Subset high medium or low genes
+
+
+#####Columns to add
+gene_high
+genes_low
+genes_medium
+tissue hits
+
+high count medium count low count
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+library(tidyverse)
+```
+
+Load data
+
+```{r cars}
+hpa_dat <- read.table("normal_tissue.tsv", sep = '\t', header = TRUE, stringsAsFactors = F)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+###Set up variable for debugging
+gene_list <- c("PRSS1", "CELA3A", "PNLIP", "CELA3A", "PRL")
+stringency = "normal"
+scale_abundance = T
+scale_genes = T
+round_to = 2
+subset_genes = T
+```
+
+
+The tool:
+```{r}
+
+stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F,
+                       stringency = "normal",
+                       scale_abundance= T,
+                        scale_genes = T,
+                        round = 2,
+                    subset_genes = T){
+  
+  
+  
+  
+  
+  #Remove any blanks from the gene list
+  gene_list <- gene_list[gene_list != ""]
+  
+  #Set up all cell types for later
+   all_cell_types = unique(hpa_dat$Cell.type)
+  
+  #Subset just to genes of interest
+  sub_dat <- subset(hpa_dat, hpa_dat$Gene.name %in% gene_list)
+  
+  #Remove testis as their cell over stain
+  sub_dat <- sub_dat %>% filter(Tissue != "testis", !is.na(Cell.type))
+  
+  #Below selects the tolerance of bad data, I suggest normal or high
+  if (stringency == "normal") {
+    sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced", "Supported")) 
+  }
+  
+    if (stringency == "high") {
+    sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced")) 
+  }
+  
+  
+  
+  
+  #Test how many genes are in hpa
+  percent_coding <- sum(gene_list %in% sub_dat$Gene.name)/length(gene_list)
+  
+  #What are the genes in the dataset
+  prot_genes <- gene_list[(gene_list %in% sub_dat$Gene.name)]
+  
+  #What genes are not in the dataset
+  non_coding <- gene_list[!(gene_list %in% sub_dat$Gene.name)]
+  
+  
+  #Below code returns dataframe full of NAs in the case of no protein coding genes, this way you know where data is missing
+  if (percent_coding == 0) {
+  no_dat_matrix  <- matrix(data = NA, nrow = length(all_cell_types), ncol = 7)
+  rownames(no_dat_matrix) <- all_cell_types  
+  colnames(no_dat_matrix) <- c("High", "Medium", "Low", "Not detected", "enriched_score", "num_genes", "genes")
+  
+  
+  no_dat_tib <-  as_tibble(no_dat_matrix, rownames = "cell_type" )
+  
+    return(no_dat_tib)
+  }
+  
+  
+
+  
+  #CELL TYPE ENRICHMENT
+  
+  #Find levels of expression in cell types
+  cell_type_dat  <- table(sub_dat$Cell.type, sub_dat$Level)
+
+  #WE GOTTA scale for tissues known
+  #tiss_scale <- rowSums((table(sub_dat$Cell.type, sub_dat$Tissue))/length(prot_genes))
+  
+  #cell_type_dat_tiss_scale = cell_type_dat/tiss_scale
+  
+  #Normalize based on how many times they are detected
+  cell_type_dat_per <-   apply(cell_type_dat, 2, FUN = function(x){x/rowSums(cell_type_dat)})
+  
+  
+  scaled_for_genes  <- rowSums(table(sub_dat$Cell.type,sub_dat$Gene.name))/length(prot_genes)
+  
+
+   
+  
+  
+  
+  #Scale for only a few genes existing
+  if (scale_abundance == T) {
+     #Get unique tissue counts
+      uni_tiss  <- sub_dat %>% select(Cell.type, Tissue) %>% distinct %>% arrange(Cell.type)
+ 
+       scaled_4_tiss_n_genes  <- scaled_for_genes/ rowSums(table(uni_tiss$Cell.type, uni_tiss$Tissue))
+
+      
+      cell_type_dat_per <- cell_type_dat_per * scaled_4_tiss_n_genes
+      
+  }
+
+  
+  
+  
+  #Below add column if the low medium or high columns don't exist
+    if (!("Low" %in% colnames(cell_type_dat_per))) {
+    Low <- matrix(0,nrow = nrow(cell_type_dat_per))
+    cell_type_dat_per <- cbind(cell_type_dat_per, Low)
+    colnames(cell_type_dat_per)[ncol(cell_type_dat_per)] <- "Low"
+    rm(Low)
+    }
+  
+    if (!("Medium" %in% colnames(cell_type_dat_per))) {
+    Medium <- matrix(0,nrow = nrow(cell_type_dat_per))
+    cell_type_dat_per <- cbind(cell_type_dat_per, Medium)
+    colnames(cell_type_dat_per)[ncol(cell_type_dat_per)] <- "Medium"
+     rm(Medium)
+    }
+    if (!("High" %in% colnames(cell_type_dat_per))) {
+    High <- matrix(0,nrow = nrow(cell_type_dat_per))
+    cell_type_dat_per <- cbind(cell_type_dat_per, High)
+    colnames(cell_type_dat_per)[ncol(cell_type_dat_per)] <- "High"
+     rm(High)
+    }
+  
+  #Add all missing cell types, this allows you to see what cells there is no information for
+  #This is done below by creating a matrix of NAs of the not included cells
+  not_included_cells <- all_cell_types[!(all_cell_types %in% row.names(cell_type_dat_per))]
+  
+  not_included_matrix  <- matrix(data = NA, nrow = length(not_included_cells), ncol = ncol(cell_type_dat_per))
+  
+  rownames(not_included_matrix) <- not_included_cells
+  
+  cell_type_dat_per <- rbind(cell_type_dat_per, not_included_matrix)
+  
+
+  #Below is where we generate the final tibble
+  cell_type_out <-  as_tibble(cell_type_dat_per, rownames = "cell_type" ) %>% #1. Make the data a tibble with rownames as cell_type
+    #dplyr::arrange(desc(High), desc(Medium), desc(Low), desc(`Not detected`)) %>% #2. No longer used step
+    mutate_if(is.numeric, round, round_2) %>% #3. 
+    dplyr::select(cell_type, High, Medium, Low, `Not detected`) %>% #4
+    mutate(enriched_score = (High * 100) + (Medium * 50) + (Low *25),
+          num_genes =  sum(gene_list %in% sub_dat$Gene.name)) %>%
+    arrange(desc(enriched_score))
+  
+  if (scale_genes == T) {
+    prot_genes
+    tiss_gene_table  <- table(sub_dat$Cell.type,sub_dat$Gene.name) > 0.5
+    cell_types_current <- cell_type_out$cell_type
+    cell_types_current
+    
+    
+    
+      
+    
+    gene_col  <- NULL
+    gene_count <- NULL
+    for (cells_in in cell_types_current) {
+      
+      #Add grouped or split gene option here
+      
+      
+      #cells_in <- "chondrocytes"
+      if (cells_in %in% rownames(tiss_gene_table)) {
+              temp_genes <- names(tiss_gene_table[cells_in,])[tiss_gene_table[cells_in,] == T]
+              gene_col <-  c(gene_col, paste0(temp_genes,collapse = ", "))
+              gene_count <- c(gene_count, length(temp_genes))
+              
+      }else{
+        gene_col <- c(gene_col, "")
+        gene_count <- c(gene_count, 0)
+      }
+      
+      
+
+    }
+     
+  }
+  
+  if (scale_genes == T) {
+  
+     cell_type_out$genes <- as.vector(gene_col)
+      cell_type_out$num_genes <- gene_count
+  }else{
+    cell_type_out$genes <- paste0(prot_genes,collapse = ", ")
+  }
+  
+  
+  return(cell_type_out)
+  
+}
+
+
+
+```
+
+
+Test tool
+```{r}
+
+stainr_out <- stainR(gene_list = gene_list,
+       hpa_dat = hpa_dat)
+
+stainr_out
+
+write.csv(stainr_out, file="stainR_current_output.csv", row.names = F)
+```
+
