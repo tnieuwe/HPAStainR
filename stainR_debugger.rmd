@@ -46,6 +46,8 @@ scale_abundance = T
 scale_genes = T
 round_to = 2
 subset_genes = T
+csv_names = F
+percent_or_count = c("percent", "count", "both")
 ```
 
 
@@ -53,27 +55,43 @@ The tool:
 ```{r}
 
 stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F,
+                      tissue_level = T,
                        stringency = "normal",
                        scale_abundance= T,
                         scale_genes = T,
-                        round = 2,
-                    subset_genes = T){
+                        round_to = 2,
+                    subset_genes = T,
+                    csv_names= F, 
+                   percent_or_count = c("percent", "count", "both")){
   
+  p_o_c = percent_or_count[1]
   
+  if (tissue_level == T) {
+    cell_o_tiss = "tissue_cell"
+    
+  }else{
+    cell_o_tiss = "Cell.type"
+  }
   
   
   
   #Remove any blanks from the gene list
   gene_list <- gene_list[gene_list != ""]
   
-  #Set up all cell types for later
-   all_cell_types = unique(hpa_dat$Cell.type)
   
-  #Subset just to genes of interest
+   #make new column combining cell type and tissue
+   hpa_dat <- hpa_dat %>% 
+    mutate(Tissue = gsub('[[:digit:]]+', '', Tissue), tissue_cell = paste0(toupper(str_trim(Tissue))," - ", Cell.type))
+   
+  
+  #Set up all cell types for later
+   all_cell_types = unique(hpa_dat[[cell_o_tiss]])
+ 
+  #Subset just to genes of interest 
   sub_dat <- subset(hpa_dat, hpa_dat$Gene.name %in% gene_list)
   
-  #Remove testis as their cell over stain
-  sub_dat <- sub_dat %>% filter(Tissue != "testis", !is.na(Cell.type))
+  #Remove testis as their cell over stain and 
+  sub_dat <- sub_dat %>% filter(Tissue != "testis", !is.na(Cell.type)) 
   
   #Below selects the tolerance of bad data, I suggest normal or high
   if (stringency == "normal") {
@@ -108,14 +126,14 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   
     return(no_dat_tib)
   }
-  
+  #Move above section to the end so it can react to all data
   
 
   
   #CELL TYPE ENRICHMENT
   
   #Find levels of expression in cell types
-  cell_type_dat  <- table(sub_dat$Cell.type, sub_dat$Level)
+  cell_type_dat  <- table(sub_dat[[cell_o_tiss]], sub_dat$Level)
 
   #WE GOTTA scale for tissues known
   #tiss_scale <- rowSums((table(sub_dat$Cell.type, sub_dat$Tissue))/length(prot_genes))
@@ -126,7 +144,7 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   cell_type_dat_per <-   apply(cell_type_dat, 2, FUN = function(x){x/rowSums(cell_type_dat)})
   
   
-  scaled_for_genes  <- rowSums(table(sub_dat$Cell.type,sub_dat$Gene.name))/length(prot_genes)
+  scaled_for_genes  <- rowSums(table(sub_dat[[cell_o_tiss]],sub_dat$Gene.name))/length(prot_genes)
   
 
    
@@ -136,12 +154,22 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   #Scale for only a few genes existing
   if (scale_abundance == T) {
      #Get unique tissue counts
-      uni_tiss  <- sub_dat %>% select(Cell.type, Tissue) %>% distinct %>% arrange(Cell.type)
+      uni_tiss  <- sub_dat %>% select((!!sym(cell_o_tiss)), Tissue) %>% distinct %>% arrange((!!sym(cell_o_tiss)))
  
-       scaled_4_tiss_n_genes  <- scaled_for_genes/ rowSums(table(uni_tiss$Cell.type, uni_tiss$Tissue))
+       scaled_4_tiss_n_genes  <- scaled_for_genes/ rowSums(table(uni_tiss[[cell_o_tiss]], uni_tiss$Tissue))
 
       
       cell_type_dat_per <- cell_type_dat_per * scaled_4_tiss_n_genes
+      
+      #New section that fixes counts of differnt groups
+      tiss_cell_percent <- sub_dat %>% select(Gene.name,Cell.type, tissue_cell) 
+
+      group_list  <- table(tiss_cell_percent[[cell_o_tiss]])
+
+      unique_counts <- sapply(group_list, function(x){ifelse(x/length(prot_genes) > 1, (x/length(prot_genes)), 1 )})
+      
+      
+      cell_type_dat_per <- cell_type_dat_per/unique_counts
       
   }
 
@@ -183,15 +211,17 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   #Below is where we generate the final tibble
   cell_type_out <-  as_tibble(cell_type_dat_per, rownames = "cell_type" ) %>% #1. Make the data a tibble with rownames as cell_type
     #dplyr::arrange(desc(High), desc(Medium), desc(Low), desc(`Not detected`)) %>% #2. No longer used step
-    mutate_if(is.numeric, round, round_2) %>% #3. 
+    mutate_if(is.numeric, round, round_to) %>% #3. 
     dplyr::select(cell_type, High, Medium, Low, `Not detected`) %>% #4
     mutate(enriched_score = (High * 100) + (Medium * 50) + (Low *25),
           num_genes =  sum(gene_list %in% sub_dat$Gene.name)) %>%
-    arrange(desc(enriched_score))
+    arrange(desc(enriched_score)) 
+  
+  
   
   if (scale_genes == T) {
     prot_genes
-    tiss_gene_table  <- table(sub_dat$Cell.type,sub_dat$Gene.name) > 0.5
+    tiss_gene_table  <- table(sub_dat[[cell_o_tiss]],sub_dat$Gene.name) > 0.5
     cell_types_current <- cell_type_out$cell_type
     cell_types_current
     
@@ -232,6 +262,30 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   }
   
   
+    #Change names; might need to change once count data is incorporated
+  if (csv_names == T) {
+    cell_type_out <- cell_type_out %>% rename(percent_high_expression = High, 
+                                              percent_medium_expression = Medium, 
+                                              percent_low_expression = Low,
+                                              not_detected = `Not detected`, 
+                                              number_Of_genes = num_genes)
+  }
+  
+    if (csv_names == F) {
+    cell_type_out <- cell_type_out %>% rename(`Cell Type` = cell_type,
+                                              `Percent High Expression` = High, 
+                                              `Percent Medium Expression` = Medium, 
+                                              `Percent Low Expression`= Low,
+                                              `Not Detected` = `Not detected`, 
+                                             `Number of Genes` = num_genes,
+                                             `Enriched Score` = enriched_score,
+                                             Genes = genes)
+  }
+  
+  
+  
+  
+  
   return(cell_type_out)
   
 }
@@ -244,11 +298,50 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
 Test tool
 ```{r}
 
+gene_list <- c("PRSS1",  "CELA3A", "PNLIP",  "CELA3A", "PRL"  )
+
+gene_list <- "PECAM1"
+
 stainr_out <- stainR(gene_list = gene_list,
-       hpa_dat = hpa_dat)
+       hpa_dat = hpa_dat, tissue_level = T, round_to = 4)
 
 stainr_out
 
-write.csv(stainr_out, file="stainR_current_output.csv", row.names = F)
+write.csv(stainr_out, file="stainR_tissue_current_output.csv", row.names = F)
+```
+
+Trouble shooting
+
+New idea, make it have either a "General" output which is all cells lump together or "tissue based" output which gives results for tissue - cell types
+```{r}
+hpa_dat
+
+sub_dat <- sub_dat %>% mutate(Tissue = gsub('[[:digit:]]+', '', Tissue), tissue_cell = paste0(toupper(str_trim(Tissue)),"-", Cell.type))
+
+
+table(sub_dat$tissue_cell, sub_dat$Level)
+table(sub_dat$tissue_cell)
+
+
+#cell_o_tiss <- "Cell.type"
+
+cell_o_tiss <- "tissue_cell"
+
+#Cell tiss test
+tiss_cell_percent_test <- sub_dat %>% select(Gene.name,Cell.type, tissue_cell) 
+
+test_list  <- table(tiss_cell_percent_test[[cell_o_tiss]])
+
+sapply(test_list, function(x){ifelse(x/length(prot_genes) > 1, (x/length(prot_genes)), 1 )})
+
+#official naming
+tiss_cell_percent <- sub_dat %>% select(Gene.name,Cell.type, tissue_cell) 
+
+group_list  <- table(tiss_cell_percent[[cell_o_tiss]])
+
+unique_counts <- sapply(group_list, function(x){ifelse(x/length(prot_genes) > 1, (x/length(prot_genes)), 1 )})
+
+
+
 ```
 
