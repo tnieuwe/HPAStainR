@@ -47,6 +47,7 @@ scale_genes = T
 round_to = 2
 subset_genes = T
 csv_names = F
+tissue_level = T
 percent_or_count = c("percent", "count", "both")
 ```
 
@@ -58,9 +59,9 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
                       tissue_level = T,
                        stringency = "normal",
                        scale_abundance= T,
-                        scale_genes = T,
+                        scale_genes = T, #Do not include in shiny, this is for my personal pipeline
                         round_to = 2,
-                    subset_genes = T,
+                    subset_genes = T, #unused
                     csv_names= F, 
                    percent_or_count = c("percent", "count", "both")){
   
@@ -134,6 +135,8 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   
   #Find levels of expression in cell types
   cell_type_dat  <- table(sub_dat[[cell_o_tiss]], sub_dat$Level)
+  
+  cell_type_dat_df <- as.data.frame.matrix(cell_type_dat) 
 
   #WE GOTTA scale for tissues known
   #tiss_scale <- rowSums((table(sub_dat$Cell.type, sub_dat$Tissue))/length(prot_genes))
@@ -207,6 +210,7 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   
   cell_type_dat_per <- rbind(cell_type_dat_per, not_included_matrix)
   
+  cell_type_dat_mat <- rbind(as.matrix(cell_type_dat_df), not_included_matrix)
 
   #Below is where we generate the final tibble
   cell_type_out <-  as_tibble(cell_type_dat_per, rownames = "cell_type" ) %>% #1. Make the data a tibble with rownames as cell_type
@@ -217,8 +221,18 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
           num_genes =  sum(gene_list %in% sub_dat$Gene.name)) %>%
     arrange(desc(enriched_score)) 
   
+  #Prepare count data for joining
+  cell_type_count <- as_tibble(cell_type_dat_mat, rownames = "cell_type") %>% rename("high_expression_count" = "High", 
+                                                                  "medium_expression_count" = "Medium",
+                                                                  "low_expression_count" = "Low",
+                                                                  "not_detcted_count" = "Not detected")
   
   
+  cell_type_out <- left_join(cell_type_out, cell_type_count)
+  
+  
+  
+  #Change genes in column to only thos detcted
   if (scale_genes == T) {
     prot_genes
     tiss_gene_table  <- table(sub_dat[[cell_o_tiss]],sub_dat$Gene.name) > 0.5
@@ -264,26 +278,45 @@ stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F
   
     #Change names; might need to change once count data is incorporated
   if (csv_names == T) {
-    cell_type_out <- cell_type_out %>% rename(percent_high_expression = High, 
-                                              percent_medium_expression = Medium, 
+    cell_type_out <- cell_type_out %>% select(cell_type,
+                                              percent_high_expression = High,
+                                              high_expression_count,
+                                              percent_medium_expression = Medium,
+                                              medium_expression_count,
                                               percent_low_expression = Low,
-                                              not_detected = `Not detected`, 
-                                              number_Of_genes = num_genes)
+                                              low_expression_count,
+                                              percent_not_detected = `Not detected`,
+                                              not_detcted_count,
+                                              number_of_genes = num_genes,
+                                              everything())
   }
   
     if (csv_names == F) {
-    cell_type_out <- cell_type_out %>% rename(`Cell Type` = cell_type,
-                                              `Percent High Expression` = High, 
+    cell_type_out <- cell_type_out %>% select(`Cell Type` = cell_type,
+                                              `Percent High Expression` = High,
+                                              `High Expression Count` = high_expression_count,
                                               `Percent Medium Expression` = Medium, 
+                                              `Medium Expression Count` = medium_expression_count,
                                               `Percent Low Expression`= Low,
-                                              `Not Detected` = `Not detected`, 
+                                              `low_expression_count` = low_expression_count,
+                                              `Percent Not Detected` = `Not detected`,
+                                              `Not Detected Count` = not_detcted_count, 
                                              `Number of Genes` = num_genes,
                                              `Enriched Score` = enriched_score,
-                                             Genes = genes)
+                                             Genes = genes,
+                                             everything())
   }
   
+  #Select count percent prefernce
+  if (p_o_c == "percent") {
+    cell_type_out <- cell_type_out[, -grep("ount", colnames(cell_type_out))]
+    
+  }
   
-  
+    if (p_o_c == "count") {
+    cell_type_out <- cell_type_out[, -grep("ercent", colnames(cell_type_out))]
+    
+  }
   
   
   return(cell_type_out)
@@ -300,14 +333,14 @@ Test tool
 
 gene_list <- c("PRSS1",  "CELA3A", "PNLIP",  "CELA3A", "PRL"  )
 
-gene_list <- "PECAM1"
+#gene_list <- "PECAM1"
 
 stainr_out <- stainR(gene_list = gene_list,
-       hpa_dat = hpa_dat, tissue_level = T, round_to = 4)
+       hpa_dat = hpa_dat, tissue_level = T, round_to = 4, percent_or_count = "both")
 
 stainr_out
 
-write.csv(stainr_out, file="stainR_tissue_current_output.csv", row.names = F)
+write.csv(stainr_out, file="stainR_both_current_output.csv", row.names = F)
 ```
 
 Trouble shooting
