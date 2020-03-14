@@ -1,4 +1,5 @@
 library(shiny)
+
 library(tidyverse)
 
 ui <- fluidPage(
@@ -7,7 +8,7 @@ ui <- fluidPage(
   #Option selection 
   sidebarLayout(  
     #List of genes
-  sidebarPanel(textAreaInput("gene_list", "List of Genes (comma seperated, no spaces):", "PRSS1,PNLIP,CELA3A,PRL"),
+  sidebarPanel(textAreaInput("gene_list", "List of Genes (comma seperated):", "PRSS1,PNLIP,CELA3A,PRL"),
   selectInput("tissue_level", "Cells broken down by tissue site?", c("Yes", "No")),
   selectInput("percent_or_count", "Do you want a count of how many times a gene from your list appears
               and/or a percent of how many genes appear in a given tissue?", c("percent", "count","both")),
@@ -16,10 +17,11 @@ ui <- fluidPage(
   selectInput("stringency", "Confidence level of HPA data", c("Normal", "High", "Low"), selected = "Normal"),
   numericInput("round_to", "Round values to:", value =2,  min = 2, max = 5 ),
   selectInput("csv_names", "Column names easier to deal with in csv format", c("False", "True")),
-  submitButton(text = "Run stainR"),
-  textOutput("gene_list")),
+  submitButton(text = "Run HPAStain.R"),
+  textOutput("gene_list"),
+  downloadButton("downloadData", "Download Output Table")),
   #Output table
-  mainPanel(tableOutput("table"))
+  mainPanel(DT::dataTableOutput("table"))
   
   )
 
@@ -38,6 +40,10 @@ ui <- fluidPage(
                      csv_names= F, 
                      percent_or_count = c("percent", "count", "both")){
    
+    #Make gene list robust to incongruencies
+    gene_list = gsub(pattern = " ", replacement =  "", x =  gene_list)
+    gene_list = unlist(str_split(gene_list, ','))
+    gene_list = toupper(gene_list)
     p_o_c = percent_or_count[1]
     
     if (tissue_level == T) {
@@ -299,7 +305,7 @@ ui <- fluidPage(
     }
     
     
-    return(cell_type_out)
+    return((cell_type_out))
     
   }
   
@@ -313,7 +319,8 @@ server <- function(input, output){
   
   n1 <- reactive({
     (stainR(
-      gene_list = unlist(str_split(input$gene_list, ',')),
+      gene_list =input$gene_list,
+      #gene_list = unlist(str_split(input$gene_list), ','),
       hpa_dat = hpa_dat, 
       tissue_level = ifelse(input$tissue_level == "Yes", T, F),
       stringency = input$stringency,
@@ -329,10 +336,23 @@ server <- function(input, output){
     
   })
   
-  output$table <- renderTable(print(n1()))
+  output$table <- DT::renderDataTable(print(n1()))
+
+    
   
+ 
+ 
+  output$downloadData <- downloadHandler(
+    filename ="HPAstainR_results.csv",
+    content = function(file){
+      write.csv(print(n1()), file, row.names = F)
+    }
+      )
   
 
+  
+  
+  
   
 }
 
