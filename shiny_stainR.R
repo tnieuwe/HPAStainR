@@ -10,8 +10,8 @@ ui <- fluidPage(
     #List of genes
   sidebarPanel(textAreaInput("gene_list", "List of Genes (comma seperated):", "PRSS1,PNLIP,CELA3A,PRL"),
   selectInput("tissue_level", "Cells broken down by tissue site?", c("Yes", "No")),
-  selectInput("percent_or_count", "Do you want a count of how many times a gene from your list appears
-              and/or a percent of how many genes appear in a given tissue?", c("percent", "count","both")),
+  selectInput("percent_or_count", "Do you want a count of how often the protein stains in a tissue and/or what percent of your list
+              stains in a given cell type and at what level?", c("percent", "count","both")),
                #This scales the genes fo the percentage so you don't get 100 enrichment scores for tissues where 1 protein was tested
   selectInput("scale_abundance", "Scale results for genes that have available data", c("True", "False")),
   selectInput("stringency", "Confidence level of HPA data", c("Normal", "High", "Low"), selected = "Normal"),
@@ -163,6 +163,12 @@ ui <- fluidPage(
       Low <- matrix(0,nrow = nrow(cell_type_dat_per))
       cell_type_dat_per <- cbind(cell_type_dat_per, Low)
       colnames(cell_type_dat_per)[ncol(cell_type_dat_per)] <- "Low"
+      #DF
+      Low <- matrix(0,nrow = nrow(cell_type_dat_df))
+      cell_type_dat_df <- cbind(cell_type_dat_df, Low)
+      colnames(cell_type_dat_df)[ncol(cell_type_dat_df)] <- "Low"
+      
+      
       rm(Low)
     }
     
@@ -170,12 +176,24 @@ ui <- fluidPage(
       Medium <- matrix(0,nrow = nrow(cell_type_dat_per))
       cell_type_dat_per <- cbind(cell_type_dat_per, Medium)
       colnames(cell_type_dat_per)[ncol(cell_type_dat_per)] <- "Medium"
+      
+      #DF
+      Medium <- matrix(0,nrow = nrow(cell_type_dat_df))
+      cell_type_dat_df <- cbind(cell_type_dat_df, Medium)
+      colnames(cell_type_dat_df)[ncol(cell_type_dat_df)] <- "Medium"
+      
+      
       rm(Medium)
     }
     if (!("High" %in% colnames(cell_type_dat_per))) {
       High <- matrix(0,nrow = nrow(cell_type_dat_per))
       cell_type_dat_per <- cbind(cell_type_dat_per, High)
       colnames(cell_type_dat_per)[ncol(cell_type_dat_per)] <- "High"
+      #DF
+      High <- matrix(0,nrow = nrow(cell_type_dat_df))
+      cell_type_dat_df <- cbind(cell_type_dat_df, High)
+      colnames(cell_type_dat_df)[ncol(cell_type_dat_df)] <- "High"
+      
       rm(High)
     }
 
