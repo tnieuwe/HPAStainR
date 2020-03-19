@@ -2,32 +2,53 @@ library(shiny)
 
 library(tidyverse)
 
+
 ui <- fluidPage(
   
   titlePanel("HPAStain.R"),
   #Option selection 
   sidebarLayout(  
     #List of genes
-  sidebarPanel(textAreaInput("gene_list", "List of Genes (comma seperated):", "PRSS1,PNLIP,CELA3A,PRL"),
-  selectInput("tissue_level", "Cells broken down by tissue site?", c("Yes", "No")),
-  selectInput("percent_or_count", "Do you want a count of how often the protein stains in a tissue and/or what percent of your list
-              stains in a given cell type and at what level?", c("percent", "count","both")),
-               #This scales the genes fo the percentage so you don't get 100 enrichment scores for tissues where 1 protein was tested
-  selectInput("scale_abundance", "Scale results for genes that have available data", c("True", "False")),
-  selectInput("stringency", "Confidence level of HPA data", c("Normal", "High", "Low"), selected = "Normal"),
-  numericInput("round_to", "Round values to:", value =2,  min = 2, max = 5 ),
-  selectInput("csv_names", "Column names easier to deal with in csv format", c("False", "True")),
-  submitButton(text = "Run HPAStain.R"),
-  textOutput("gene_list"),
-  downloadButton("downloadData", "Download Output Table")),
-  #Output table
-  mainPanel(DT::dataTableOutput("table"))
-  
+    sidebarPanel("HPAStain.R is a tool to find which cell types stain from a list of proteins that you provide.", 
+                 "Type in a list below and hit the button to try it out.",
+                 textAreaInput("gene_list", "List of Proteins (comma separated):", "PRSS1,PNLIP,CELA3A,PRL"),
+                 submitButton(text = "Run HPAStain.R"),
+                 downloadButton("downloadData", "Download Output as CSV"),
+                 selectInput("tissue_level", "Report tissue source of cell type?", c("Yes", "No")),
+                 selectInput("percent_or_count", "Report counts, percents or both for expression levels?", c("percent", "count","both")),
+                 #This scales the genes fo the percentage so you don't get 100 enrichment scores for tissues where 1 protein was tested
+                 selectInput("scale_abundance", "Scale results for proteins that have available data", c("True", "False")),
+                 selectInput("stringency", "Confidence level of HPA data", c("Normal", "High", "Low"), selected = "Normal"),
+                 selectInput("stain_gene_results", "Column of detected genes", c("True", "False")),
+                 #
+                 numericInput("round_to", "Round values to:", value =2,  min = 2, max = 5 ),
+                 selectInput("csv_names", "Column names easier to deal with in csv format", c("False", "True")),
+                 
+                 textOutput("gene_list"),
+                 "The data used is from the Human Protein Atlas.",
+                 "Any questions please email Tim Nieuwenhuis at:
+                 tnieuwe1@jhmi.edu"
+                 ),
+    #Output table
+    mainPanel(DT::dataTableOutput("table"))
+    
   )
-
+  
 )
 
 
+
+
+
+
+server <- function(input, output){
+  
+  
+  
+  #load Data
+  hpa_dat <- read.table("normal_tissue.tsv", sep = '\t', header = TRUE, stringsAsFactors = F)
+  
+  
   #Insert required function
   
   stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F,
@@ -37,9 +58,10 @@ ui <- fluidPage(
                      scale_genes = T, #Do not include in shiny, this is for my personal pipeline
                      round_to = 2,
                      #subset_genes = T, #unused
-                     csv_names= F, 
+                     csv_names= F,
+                     stained_gene_data = T,
                      percent_or_count = c("percent", "count", "both")){
-   
+    
     #Make gene list robust to incongruencies
     gene_list = gsub(pattern = " ", replacement =  "", x =  gene_list)
     gene_list = unlist(str_split(gene_list, ','))
@@ -71,7 +93,7 @@ ui <- fluidPage(
     sub_dat <- subset(hpa_dat, hpa_dat$Gene.name %in% gene_list)
     
     #Remove testis as their cell over stain and 
-    sub_dat <- sub_dat %>% filter(Tissue != "testis", !is.na(Cell.type)) 
+    sub_dat <- sub_dat %>% filter(Tissue != "testis", !is.na(Cell.type), tissue_cell != "N/A - N/A") 
     
     #Below selects the tolerance of bad data, I suggest normal or high
     if (stringency == "normal") {
@@ -129,7 +151,7 @@ ui <- fluidPage(
     scaled_for_genes  <- rowSums(table(sub_dat[[cell_o_tiss]],sub_dat$Gene.name))/length(prot_genes)
     
     
-
+    
     
     
     
@@ -196,9 +218,9 @@ ui <- fluidPage(
       
       rm(High)
     }
-
     
-        
+    
+    
     #Add all missing cell types, this allows you to see what cells there is no information for
     #This is done below by creating a matrix of NAs of the not included cells
     not_included_cells <- all_cell_types[!(all_cell_types %in% row.names(cell_type_dat_per))]
@@ -234,9 +256,9 @@ ui <- fluidPage(
     cell_type_out <- left_join(cell_type_out, cell_type_count)
     
     
-   
     
-    #Change genes in column to only thos detcted
+    
+    #Change genes in column to only thos detected
     if (scale_genes == T) {
       prot_genes
       tiss_gene_table  <- table(sub_dat[[cell_o_tiss]],sub_dat$Gene.name) > 0.5
@@ -279,7 +301,61 @@ ui <- fluidPage(
       cell_type_out$genes <- paste0(prot_genes,collapse = ", ")
     }
     
-   
+    
+    #Add the option that gives a column if a gene is availavble
+    #stained_gene_data = T
+    if (stained_gene_data == T) {
+      
+      if (tissue_level == T) {
+        staining_dat <- sub_dat %>% filter(Level != "Not detected")
+        staining_tf_df <- as.matrix.data.frame(table(staining_dat$tissue_cell, staining_dat$Gene.name) > 0, T)
+        colnames(staining_tf_df)  <- colnames(table(staining_dat$tissue_cell, staining_dat$Gene.name))
+        staining_tf_df <- as.data.frame(staining_tf_df)
+      }else{
+        
+        staining_dat <- sub_dat %>% filter(Level != "Not detected")
+        staining_tf_df <- as.matrix.data.frame(table(staining_dat$Cell.type, staining_dat$Gene.name) > 0, T)
+        colnames(staining_tf_df)  <- colnames(table(staining_dat$Cell.type, staining_dat$Gene.name))
+        staining_tf_df <- as.data.frame(staining_tf_df)
+        
+      }
+      
+      
+      #For loop to replace T F with name
+      for (col_n in 1:ncol(staining_tf_df)) {
+        gene <- colnames(staining_tf_df)[col_n]
+        staining_tf_df[,col_n] <- ifelse(staining_tf_df[,col_n] == T,  gene, "")
+        
+        #staining_tf_df %>% mutate(col_n = ifelse(col_n == T, col_n == gene, col_n == ""))
+      }
+      
+      
+      stained_list <- apply(as.matrix(staining_tf_df), 1 , paste , collapse = "," )
+      #Remove all , at the end of strings
+      while (sum(str_detect(string = stained_list, pattern = ",$")) > 0 ) {
+        stained_list <- gsub(pattern = ",$", x= stained_list, replacement = "")
+      }
+      
+      #Remove all , at beginning 
+      while (sum(str_detect(string = stained_list, pattern = "^,")) > 0 ) {
+        stained_list <- gsub(pattern = "^,", x= stained_list, replacement = "")
+      }
+      
+      #Remove all ,, and replace with ,
+      while (sum(str_detect(string = stained_list, pattern = ",,")) > 0 ) {
+        stained_list <- gsub(pattern = ",,", x= stained_list, replacement = ",")
+      }
+      stained_out <- as.data.frame(stained_list, stringsAsFactors = F) %>% rownames_to_column(var = "cell_type")
+      
+    }
+    
+    
+    cell_type_out <- left_join(cell_type_out, stained_out, by ="cell_type")
+    
+    
+    
+    
+    
     #Change names; might need to change once count data is incorporated
     if (csv_names == T) {
       cell_type_out <- cell_type_out %>% select(cell_type,
@@ -290,8 +366,10 @@ ui <- fluidPage(
                                                 percent_low_expression = Low,
                                                 low_expression_count,
                                                 percent_not_detected = `Not detected`,
-                                                not_detcted_count,
-                                                number_of_genes = num_genes,
+                                                not_detected_count,
+                                                number_of_proteins = num_genes,
+                                                tested_proteins = genes,
+                                                detected_proteins = stained_list,
                                                 everything())
     }
     
@@ -302,12 +380,13 @@ ui <- fluidPage(
                                                 `Percent Medium Expression` = Medium, 
                                                 `Medium Expression Count` = medium_expression_count,
                                                 `Percent Low Expression`= Low,
-                                                `low_expression_count` = low_expression_count,
+                                                `Low Expression Count` = low_expression_count,
                                                 `Percent Not Detected` = `Not detected`,
                                                 `Not Detected Count` = not_detcted_count, 
-                                                `Number of Genes` = num_genes,
+                                                `Number of Proteins` = num_genes,
                                                 `Enriched Score` = enriched_score,
-                                                Genes = genes,
+                                                `Tested Proteins` = genes,
+                                                `Detected Proteins` = stained_list,
                                                 everything())
     }
     
@@ -323,6 +402,9 @@ ui <- fluidPage(
     }
     
     
+    
+    
+    
     return((cell_type_out))
     
   }
@@ -330,9 +412,8 @@ ui <- fluidPage(
   
   
   
-
-
-server <- function(input, output){
+  
+  
   output$gene_list <- renderText({input$gene_list})
   
   n1 <- reactive({
@@ -345,7 +426,8 @@ server <- function(input, output){
       scale_abundance = as.logical(input$scale_abundance),
       round_to = input$round_to,
       csv_names = as.logical(input$csv_names),
-      percent_or_count = input$percent_or_count
+      percent_or_count = input$percent_or_count,
+      stained_gene_data = as.logical(input$stain_gene_results)
       
       
       
@@ -355,19 +437,19 @@ server <- function(input, output){
   })
   
   output$table <- DT::renderDataTable(print(n1()))
-
-    
   
- 
- 
+  
+  
+  
+  
   output$downloadData <- downloadHandler(
     filename ="HPAstainR_results.csv",
     content = function(file){
       write.csv(print(n1()), file, row.names = F)
     }
-      )
+  )
   
-
+  
   
   
   
@@ -375,4 +457,3 @@ server <- function(input, output){
 }
 
 shinyApp(ui, server)
-
