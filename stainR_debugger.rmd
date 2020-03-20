@@ -49,13 +49,15 @@ subset_genes = T
 csv_names = F
 tissue_level = T
 percent_or_count = c("percent", "count", "both")
+drop_na_row = T
+stained_gene_data = T
 ```
 
 
 The tool:
 ```{r}
 
-  stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F,
+stainR <- function(gene_list, hpa_dat,# weight_stain = F, weight_reliability = F,
                      tissue_level = T,
                      stringency = "normal",
                      scale_abundance= T,
@@ -64,7 +66,8 @@ The tool:
                      #subset_genes = T, #unused
                      csv_names= F,
                      stained_gene_data = T,
-                     percent_or_count = c("percent", "count", "both")){
+                     percent_or_count = c("percent", "count", "both"),
+                    drop_na_row = F){
     
     #Make gene list robust to incongruencies
     gene_list = gsub(pattern = " ", replacement =  "", x =  gene_list)
@@ -311,19 +314,19 @@ The tool:
     if (stained_gene_data == T) {
       
       if (tissue_level == T) {
-              staining_dat <- sub_dat %>% filter(Level != "Not detected")
-      staining_tf_df <- as.matrix.data.frame(table(staining_dat$tissue_cell, staining_dat$Gene.name) > 0, T)
-      colnames(staining_tf_df)  <- colnames(table(staining_dat$tissue_cell, staining_dat$Gene.name))
-      staining_tf_df <- as.data.frame(staining_tf_df)
+        staining_dat <- sub_dat %>% filter(Level != "Not detected")
+        staining_tf_df <- as.matrix.data.frame(table(staining_dat$tissue_cell, staining_dat$Gene.name) > 0, T)
+        colnames(staining_tf_df)  <- colnames(table(staining_dat$tissue_cell, staining_dat$Gene.name))
+        staining_tf_df <- as.data.frame(staining_tf_df)
       }else{
         
-              staining_dat <- sub_dat %>% filter(Level != "Not detected")
-      staining_tf_df <- as.matrix.data.frame(table(staining_dat$Cell.type, staining_dat$Gene.name) > 0, T)
-      colnames(staining_tf_df)  <- colnames(table(staining_dat$Cell.type, staining_dat$Gene.name))
-      staining_tf_df <- as.data.frame(staining_tf_df)
-      
+        staining_dat <- sub_dat %>% filter(Level != "Not detected")
+        staining_tf_df <- as.matrix.data.frame(table(staining_dat$Cell.type, staining_dat$Gene.name) > 0, T)
+        colnames(staining_tf_df)  <- colnames(table(staining_dat$Cell.type, staining_dat$Gene.name))
+        staining_tf_df <- as.data.frame(staining_tf_df)
+        
       }
-
+      
       
       #For loop to replace T F with name
       for (col_n in 1:ncol(staining_tf_df)) {
@@ -337,17 +340,17 @@ The tool:
       stained_list <- apply(as.matrix(staining_tf_df), 1 , paste , collapse = "," )
       #Remove all , at the end of strings
       while (sum(str_detect(string = stained_list, pattern = ",$")) > 0 ) {
-      stained_list <- gsub(pattern = ",$", x= stained_list, replacement = "")
+        stained_list <- gsub(pattern = ",$", x= stained_list, replacement = "")
       }
       
       #Remove all , at beginning 
       while (sum(str_detect(string = stained_list, pattern = "^,")) > 0 ) {
-      stained_list <- gsub(pattern = "^,", x= stained_list, replacement = "")
+        stained_list <- gsub(pattern = "^,", x= stained_list, replacement = "")
       }
       
       #Remove all ,, and replace with ,
       while (sum(str_detect(string = stained_list, pattern = ",,")) > 0 ) {
-      stained_list <- gsub(pattern = ",,", x= stained_list, replacement = ",")
+        stained_list <- gsub(pattern = ",,", x= stained_list, replacement = ",")
       }
       stained_out <- as.data.frame(stained_list, stringsAsFactors = F) %>% rownames_to_column(var = "cell_type")
       
@@ -370,9 +373,10 @@ The tool:
                                                 percent_low_expression = Low,
                                                 low_expression_count,
                                                 percent_not_detected = `Not detected`,
-                                                not_detcted_count,
-                                                number_of_genes = num_genes,
-                                                detected_genes = stained_list,
+                                                not_detected_count,
+                                                number_of_proteins = num_genes,
+                                                tested_proteins = genes,
+                                                detected_proteins = stained_list,
                                                 everything())
     }
     
@@ -386,10 +390,10 @@ The tool:
                                                 `Low Expression Count` = low_expression_count,
                                                 `Percent Not Detected` = `Not detected`,
                                                 `Not Detected Count` = not_detcted_count, 
-                                                `Number of Genes` = num_genes,
+                                                `Number of Proteins` = num_genes,
                                                 `Enriched Score` = enriched_score,
-                                                Genes = genes,
-                                                `Detected Genes` = stained_list,
+                                                `Tested Proteins` = genes,
+                                                `Detected Proteins` = stained_list,
                                                 everything())
     }
     
@@ -404,8 +408,10 @@ The tool:
       
     }
     
-   
     
+        if (drop_na_row == T) {
+     cell_type_out <- cell_type_out %>% drop_na
+   }
     
     
     return((cell_type_out))
@@ -438,6 +444,9 @@ The tool:
     
   })
 
+
+  
+  
 
 ```
 

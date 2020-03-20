@@ -9,8 +9,7 @@ ui <- fluidPage(
   #Option selection 
   sidebarLayout(  
     #List of genes
-    sidebarPanel("HPAStain.R is a tool to find which cell types stain from a list of proteins that you provide.", 
-                 "Type in a list below and hit the button to try it out.",
+    sidebarPanel("Provide a list of proteins (genes), of standard human nomenclature, and HPAStain.R will output the cell type they are most associated with based on patterns of staining in the Human Protein Atlas.",
                  textAreaInput("gene_list", "List of Proteins (comma separated):", "PRSS1,PNLIP,CELA3A,PRL"),
                  submitButton(text = "Run HPAStain.R"),
                  downloadButton("downloadData", "Download Output as CSV"),
@@ -23,12 +22,22 @@ ui <- fluidPage(
                  #
                  numericInput("round_to", "Round values to:", value =2,  min = 2, max = 5 ),
                  selectInput("csv_names", "Column names easier to deal with in csv format", c("False", "True")),
+                 selectInput("drop_na_rows_in", "Remove rows with missing data", c("False", "True")),
                  
-                 textOutput("gene_list"),
+                 strong(textOutput("gene_list")),
+                p( "    HPAStain.R is an R based tool used to query the Human Protein Atlas for staining data.",
+                 "The purpose of this tool is to test if a list of proteins is associated with a certain cell type in a tissue.",
+                 "E.g. you have a list of protein coding genes from a differential expression single cell analysis and want to see if these proteins are associated with a known cell type.",
+                 "Instead of querying HPA multiple times you can load your list in HPAStain.R which will return a ranked table of the cell types with the most protein staining.",
+                ),
+                br(),
+	                p("    HPAStain.R is limited to the data which is available on the HPA website, as a result, not all tissues or cell types are stained or characterized for your proteins of interest are in the database.",
+	                "When data is lacking on a gene it will not be included in the column “tested proteins”, and when tissue data is missing it is simply left blank."),
+                 br(),
                  "The data used is from the Human Protein Atlas.",
                  "Any questions please email Tim Nieuwenhuis at:
                  tnieuwe1@jhmi.edu"
-                 ),
+    ),
     #Output table
     mainPanel(DT::dataTableOutput("table"))
     
@@ -60,7 +69,8 @@ server <- function(input, output){
                      #subset_genes = T, #unused
                      csv_names= F,
                      stained_gene_data = T,
-                     percent_or_count = c("percent", "count", "both")){
+                     percent_or_count = c("percent", "count", "both"),
+                     drop_na_row = F){
     
     #Make gene list robust to incongruencies
     gene_list = gsub(pattern = " ", replacement =  "", x =  gene_list)
@@ -245,6 +255,10 @@ server <- function(input, output){
       arrange(desc(enriched_score)) 
     
     
+    if (drop_na_row == T) {
+      cell_type_out <- cell_type_out %>% drop_na(enriched_score)
+    }
+    
     
     #Prepare count data for joining
     cell_type_count <- as_tibble(cell_type_dat_mat, rownames = "cell_type") %>% rename("high_expression_count" = "High", 
@@ -345,6 +359,7 @@ server <- function(input, output){
       while (sum(str_detect(string = stained_list, pattern = ",,")) > 0 ) {
         stained_list <- gsub(pattern = ",,", x= stained_list, replacement = ",")
       }
+      stained_list <- gsub(pattern = ",", replacement = ", ", x = stained_list)
       stained_out <- as.data.frame(stained_list, stringsAsFactors = F) %>% rownames_to_column(var = "cell_type")
       
     }
@@ -414,6 +429,7 @@ server <- function(input, output){
   
   
   
+  
   output$gene_list <- renderText({input$gene_list})
   
   n1 <- reactive({
@@ -427,7 +443,8 @@ server <- function(input, output){
       round_to = input$round_to,
       csv_names = as.logical(input$csv_names),
       percent_or_count = input$percent_or_count,
-      stained_gene_data = as.logical(input$stain_gene_results)
+      stained_gene_data = as.logical(input$stain_gene_results),
+      drop_na_row = as.logical(input$drop_na_rows_in)
       
       
       
