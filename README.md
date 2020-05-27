@@ -16,6 +16,7 @@ https://32tim32.shinyapps.io/HPAStainR/
 To run the shinyapp locally you will need the shiny library otherwise you only need tidyverse and the two datasets below:
 
 Normal Tissue: https://www.proteinatlas.org/download/normal_tissue.tsv.zip
+
 Cancer Tissue: https://www.proteinatlas.org/download/pathology.tsv.zip
 
 Note these are large files but required to run HPAStain.R, you could also make a pipeline with the package hpar if you are inclined to working completely in R. 
