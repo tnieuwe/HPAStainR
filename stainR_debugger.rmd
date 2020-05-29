@@ -132,11 +132,11 @@ The tool:
     
     #Below selects the tolerance of bad data, I suggest normal or high
     if (stringency == "normal") {
-      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced", "Supported")) 
+      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced", "Supported", "Approved")) 
     }
     
     if (stringency == "high") {
-      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced")) 
+      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced", "Approved")) 
     }
     
     
@@ -639,6 +639,12 @@ The tool:
     }
     
     #Fix pvalues
+    #In case no pvals
+    if (!("p_val" %in%colnames(cell_type_out))) {
+      cell_type_out <- cell_type_out %>% mutate(p_val = 1,
+                                                p_val_adj = 1)
+    }
+    
     cell_type_out <- cell_type_out %>% mutate(p_val = format.pval(p_val, round_to, .005),
                                               p_val_adj = format.pval(p_val_adj, round_to, .005))
     

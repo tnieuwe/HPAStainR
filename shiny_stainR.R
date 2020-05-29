@@ -43,7 +43,7 @@ ui <- fluidPage(
     #Output table
     #mainPanel(DT::dataTableOutput("table"))
     mainPanel(
-      tabsetPanel(tabPanel( "Main OutPut" ,DT::dataTableOutput("table")),
+      tabsetPanel(tabPanel( "HPAStainR Output" ,DT::dataTableOutput("table")),
                   tabPanel("Summary of Proteins for Cell Types", DT::dataTableOutput("summ_tab"))))
   )
   
@@ -139,11 +139,11 @@ server <- function(input, output){
     
     #Below selects the tolerance of bad data, I suggest normal or high
     if (stringency == "normal") {
-      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced", "Supported")) 
+      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced", "Supported", "Approved")) 
     }
     
     if (stringency == "high") {
-      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced")) 
+      sub_dat <- subset(sub_dat, sub_dat$Reliability %in% c("Enhanced", "Approved")) 
     }
     
     
@@ -646,6 +646,12 @@ server <- function(input, output){
     }
     
     #Fix pvalues
+    #In case no pvals
+    if (!("p_val" %in%colnames(cell_type_out))) {
+      cell_type_out <- cell_type_out %>% mutate(p_val = 1,
+                                                p_val_adj = 1)
+    }
+    
     cell_type_out <- cell_type_out %>% mutate(p_val = format.pval(p_val, round_to, .005),
                                               p_val_adj = format.pval(p_val_adj, round_to, .005))
     
@@ -661,6 +667,7 @@ server <- function(input, output){
                                                 percent_not_detected = `Not detected`,
                                                 not_detected_count,
                                                 number_of_proteins = num_genes,
+                                                staining_score = enriched_score,
                                                 tested_proteins = genes,
                                                 detected_proteins = stained_list,
                                                 everything())
@@ -677,7 +684,7 @@ server <- function(input, output){
                                                 `Percent Not Detected` = `Not detected`,
                                                 `Not Detected Count` = not_detected_count, 
                                                 `Number of Proteins` = num_genes,
-                                                `Enriched Score` = enriched_score,
+                                                `Staining Score` = enriched_score,
                                                 `Tested Proteins` = genes,
                                                 `Detected Proteins` = stained_list,
                                                 `P-Value` = p_val,
@@ -718,6 +725,7 @@ server <- function(input, output){
     return((cell_type_out))
     
   }
+  
   
   
   
