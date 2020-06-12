@@ -12,7 +12,7 @@
 
 <meta name="author" content="Tim O. Nieuwenhuis" />
 
-<meta name="date" content="2020-06-11" />
+<meta name="date" content="2020-06-12" />
 
 <title>HPAStainR Package Vignette</title>
 
@@ -303,7 +303,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">HPAStainR Package Vignette</h1>
 <h4 class="author">Tim O. Nieuwenhuis</h4>
-<h4 class="date">2020-06-11</h4>
+<h4 class="date">2020-06-12</h4>
 
 
 
@@ -318,14 +318,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="downloading-data-from-the-website" class="section level2">
 <h2>Downloading data from the website</h2>
 <p>The first step required to run HPAStainR is downloading HPA’s normal tissue staining data and their cancer data. The data is available at <a href="https://www.proteinatlas.org/about/download" class="uri">https://www.proteinatlas.org/about/download</a>, the files required being <a href="https://www.proteinatlas.org/download/normal_tissue.tsv.zip">normal_tissue.tsv.zip</a> and [pathology.tsv.zip](<a href="https://www.proteinatlas.org/download/pathology.tsv.zip" class="uri">https://www.proteinatlas.org/download/pathology.tsv.zip</a>. However, HPAStainR as a function that can download and load the data for you.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(HPAstainR)</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(HPAStainR)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co">#&gt; Loading required package: tidyverse</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#&gt; -- Attaching packages -------------------------------------------------- tidyverse 1.3.0 --</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#&gt; -- Attaching packages ------------------------------------------------------------------------------------- tidyverse 1.3.0 --</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">#&gt; v ggplot2 3.3.1     v purrr   0.3.4</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">#&gt; v tibble  3.0.1     v dplyr   1.0.0</span></span>
 <span id="cb1-6"><a href="#cb1-6"></a><span class="co">#&gt; v tidyr   1.1.0     v stringr 1.4.0</span></span>
 <span id="cb1-7"><a href="#cb1-7"></a><span class="co">#&gt; v readr   1.3.1     v forcats 0.5.0</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#&gt; -- Conflicts ----------------------------------------------------- tidyverse_conflicts() --</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#&gt; -- Conflicts ---------------------------------------------------------------------------------------- tidyverse_conflicts() --</span></span>
 <span id="cb1-9"><a href="#cb1-9"></a><span class="co">#&gt; x dplyr::filter() masks stats::filter()</span></span>
 <span id="cb1-10"><a href="#cb1-10"></a><span class="co">#&gt; x dplyr::lag()    masks stats::lag()</span></span>
 <span id="cb1-11"><a href="#cb1-11"></a><span class="co">#&gt; Loading required package: shiny</span></span>
@@ -546,7 +546,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>Now that the data is available you can now us the HPAStainR function. This requires a list of proteins or genes you are interested in. In this example we’re going to use pancreatic enzymes PRSS1, PNLIP, CELA3A, and the hormone PRL.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>gene_list =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;PRSS1&quot;</span>, <span class="st">&quot;PNLIP&quot;</span>,<span class="st">&quot;CELA3A&quot;</span>, <span class="st">&quot;PRL&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2"></a></span>
-<span id="cb2-3"><a href="#cb2-3"></a>stainR_out &lt;-<span class="st"> </span>HPAstainR<span class="op">::</span><span class="kw">HPAstainR</span>(<span class="dt">gene_list =</span> gene_list,</span>
+<span id="cb2-3"><a href="#cb2-3"></a>stainR_out &lt;-<span class="st"> </span>HPAStainR<span class="op">::</span><span class="kw">HPAStainR</span>(<span class="dt">gene_list =</span> gene_list,</span>
 <span id="cb2-4"><a href="#cb2-4"></a>          <span class="dt">hpa_dat =</span> HPA_data<span class="op">$</span>hpa_dat,</span>
 <span id="cb2-5"><a href="#cb2-5"></a>          <span class="dt">cancer_dat =</span> HPA_data<span class="op">$</span>cancer_dat,</span>
 <span id="cb2-6"><a href="#cb2-6"></a>          <span class="dt">cancer_analysis =</span> <span class="st">&quot;both&quot;</span>,</span>
@@ -568,7 +568,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb2-22"><a href="#cb2-22"></a><span class="co">#&gt;  9 &quot;ADRENAL~             0                0                0                1   </span></span>
 <span id="cb2-23"><a href="#cb2-23"></a><span class="co">#&gt; 10 &quot;APPENDI~             0                0                0                1   </span></span>
 <span id="cb2-24"><a href="#cb2-24"></a><span class="co">#&gt; # ... with 6 more variables: number_of_proteins &lt;dbl&gt;, tested_proteins &lt;chr&gt;,</span></span>
-<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#&gt; #   detected_proteins &lt;chr&gt;, enriched_score &lt;dbl&gt;, p_val &lt;chr&gt;, p_val_adj &lt;chr&gt;</span></span></code></pre></div>
+<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#&gt; #   detected_proteins &lt;chr&gt;, staining_score &lt;dbl&gt;, p_val &lt;chr&gt;, p_val_adj &lt;chr&gt;</span></span></code></pre></div>
 <p>The output of HPAStainR is a tibble with multiple columns. The basic columns include the following:</p>
 <ul>
 <li><p><strong>cell_type:</strong> The cell types/cancers that are tested in the Human Protein Atlas.</p></li>

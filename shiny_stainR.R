@@ -23,7 +23,7 @@ ui <- fluidPage(
                  selectInput("stain_gene_results", "Column of detected proteins", c("True", "False")),
                  #
                  numericInput("round_to", "Round values to:", value =2,  min = 2, max = 5 ),
-                 selectInput("csv_names", "Column names easier to deal with in csv format", c("False", "True")),
+                 checkboxInput("csv_names", "Column names easier to deal with in csv format", FALSE),
                  selectInput("drop_na_rows_in", "Remove rows with missing data", c("False", "True")),
                  
                  strong(textOutput("gene_list")),
