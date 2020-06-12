@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-
+library(HPAstainR)
 ```
 
 
@@ -722,7 +722,7 @@ for (cell_type in groupings) {
   sub_dat <- dat %>% filter(stainr_col == cell_type)
   genes <- sub_dat$official.gene.symbol
   
-  stain_result <- stainR(gene_list = genes,hpa_dat = hpa_dat, csv_names = T)
+  stain_result <- HPAstainR(gene_list = genes,hpa_dat = hpa_dat, cancer_analysis = "normal", csv_names = T)
   
   stain_result
   
@@ -867,7 +867,7 @@ length(str_split(stain_result$detected_proteins, ",")[[1]])
 Current report for Marc
 ```{r}
 
-write.csv(final_df, "current_hpastainr_results_no_approved.csv", row.names = F)
+write.csv(final_df, "current_hpastainr_results_function_version.csv", row.names = F)
 
 avail_hpa_tissue_cells = unique(stain_result$cell_type)
 avail_pangloa_tissue_cells = unique(dat$stainr_col)
@@ -1008,4 +1008,27 @@ hist(bonf_pval$log10_pval)
 hist(fdr_pval$log10_pval)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Testing various HPA_StainRs
+
+```{r}
+cell_type <- groupings[1]
+
+#Current 
+
+sub_dat <- dat %>% filter(stainr_col == cell_type)
+genes <- sub_dat$official.gene.symbol
+
+stain_result <- HPAstainR(gene_list = genes,hpa_dat = hpa_dat, cancer_analysis = F, csv_names = T)
+
+stain_result
+
+
+###
+
+HPAstainR_test(gene_list = genes,hpa_dat = hpa_dat, cancer_analysis = F, csv_names = T)
+
+
+####
+stainR(gene_list = genes,hpa_dat = hpa_dat, cancer_analysis = F, csv_names = T)
+```
+
