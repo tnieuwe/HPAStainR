@@ -36,8 +36,8 @@
 
 
 
-HPAstainR <- function(gene_list, hpa_dat,
-                      cancer_dat,
+HPAstainR_test <- function(gene_list, hpa_dat,
+                      cancer_dat = data.frame(),
                       cancer_analysis = c("normal", "cancer", "both"), # weight_stain = F, weight_reliability = F,
                       tissue_level = TRUE,
                       stringency = c("normal", "high", "low"),
@@ -50,13 +50,17 @@ HPAstainR <- function(gene_list, hpa_dat,
                       drop_na_row = FALSE) {
   
   #Catch issues
-  if (!is.data.frame(hpa_dat)) {
-    stop("Are you sure hpa_dat is a dataframe? Download through HPADownloader if you're having issues")
-  }
-  if (!is.data.frame(cancer_dat)) {
-    stop("Are you sure cancer_dat is a dataframe? Download through HPADownloader if you're having issues")
+  if (cancer_analysis == "normal" | cancer_analysis == "both") {
+    if (!is.data.frame(hpa_dat)) {
+      stop("Are you sure hpa_dat is a dataframe? Download through HPADownloader if you're having issues")
+    }
   }
   
+  if (cancer_analysis == "cancer" | cancer_analysis == "both") {
+    if (!is.data.frame(cancer_dat)) {
+      stop("Are you sure cancer_dat is a dataframe? Download through HPADownloader if you're having issues")
+    }
+  }
   #In case no one select an option this will pick the default
   cancer_analysis <- cancer_analysis[1]
   stringency <- stringency[1]
@@ -127,7 +131,7 @@ HPAstainR <- function(gene_list, hpa_dat,
   if (percent_coding == 0) {
     no_dat_matrix <- matrix(data = NA, nrow = length(all_cell_types), ncol = 7)
     rownames(no_dat_matrix) <- all_cell_types
-    colnames(no_dat_matrix) <- c("High", "Medium", "Low", "Not detected", "enriched_score", "num_genes", "genes")
+    colnames(no_dat_matrix) <- c("High", "Medium", "Low", "Not detected", "staining_score", "num_genes", "genes")
     no_dat_tib <- as_tibble(no_dat_matrix, rownames = "cell_type")
     return(no_dat_tib)
   }
@@ -247,10 +251,10 @@ HPAstainR <- function(gene_list, hpa_dat,
     mutate_if(is.numeric, round, round_to) %>% # 3.
     dplyr::select(cell_type, High, Medium, Low, `Not detected`) %>% # 4
     mutate(
-      enriched_score = (High * 100) + (Medium * 50) + (Low * 25),
+      staining_score = (High * 100) + (Medium * 50) + (Low * 25),
       num_genes = sum(gene_list %in% sub_dat$Gene.name)
     ) %>%
-    arrange(desc(enriched_score))
+    arrange(desc(staining_score))
   
   
   # Prepare count data for joining
@@ -437,7 +441,7 @@ HPAstainR <- function(gene_list, hpa_dat,
   ubi_test <- hpa_dat %>%
     mutate(
       stained = ifelse(Level != "Not detected", T, F),
-      in_list = ifelse(Gene.name %in% gene_list, T, F)
+      in_list = Gene.name %in% gene_list
     ) %>%
     filter(Tissue != "testis", !is.na(Cell.type), tissue_cell != "N/A - N/A")
   # Get a list of tested genes
@@ -612,7 +616,7 @@ HPAstainR <- function(gene_list, hpa_dat,
       `Percent Not Detected` = `Not detected`,
       `Not Detected Count` = not_detected_count,
       `Number of Proteins` = num_genes,
-      `Enriched Score` = enriched_score,
+      `Staining Score` = staining_score,
       `Tested Proteins` = genes,
       `Detected Proteins` = stained_list,
       `P-Value` = p_val,
@@ -647,3 +651,4 @@ HPAstainR <- function(gene_list, hpa_dat,
   #Returning final table -------------
   return((cell_type_out))
 }
+
