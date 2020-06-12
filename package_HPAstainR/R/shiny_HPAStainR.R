@@ -32,17 +32,18 @@ shinyApp(
                    submitButton(text = "Run HPAStain.R"),
                    downloadButton("downloadData", "Download Output as CSV"),
                    selectInput("tissue_level", "Report tissue source of cell type?", c("Yes", "No")),
-                   selectInput("cancer_analysis", "Normal/Cancer Tissue", c("Normal", "Both", "Cancer")),
+                   selectInput("cancer_analysis", "Normal/Cancer Tissue", c("normal", "both", "cancer")),
                    selectInput("percent_or_count", "Report counts, percents or both for expression levels?", c("percent", "count","both")),
                    #This scales the genes fo the percentage so you don't get 100 enrichment scores for tissues where 1 protein was tested
-                   selectInput("scale_abundance", "Scale results for proteins that have available data", c("True", "False")),
+                   checkboxInput("scale_abundance", "Scale results for proteins that have available data", TRUE),
                    selectInput("stringency", "Confidence level of HPA data", c("Normal", "High", "Low"), selected = "Normal"),
-                   selectInput("tested_protein_column", "Column of tested proteins", c("True", "False")),
-                   selectInput("stain_gene_results", "Column of detected proteins", c("True", "False")),
+                   checkboxInput("tested_protein_column", "Have a column of tested proteins", TRUE),
+                   checkboxInput("stain_gene_results", "Have a column of detected proteins", TRUE),
+                   checkboxInput("adjusted_pvals", "Include adjusted P-values", TRUE),
                    #
                    numericInput("round_to", "Round values to:", value =2,  min = 2, max = 5 ),
-                   selectInput("csv_names", "Column names easier to deal with in csv format", c("False", "True")),
-                   selectInput("drop_na_rows_in", "Remove rows with missing data", c("False", "True")),
+                   checkboxInput("csv_names", "CSV friendly column name format", F),
+                   checkboxInput("drop_na_rows_in", "Remove rows with no staining data", FALSE),
                    
                    strong(textOutput("gene_list")),
                    p( "    HPAStain.R is an R based tool used to query the Human Protein Atlas for staining data.",
@@ -102,7 +103,8 @@ shinyApp(
     output$gene_list <- renderText({input$gene_list})
     
     n1 <- reactive({
-      (HPAstainR(
+      (
+        HPAStainR(
         gene_list = input$gene_list,
         #gene_list = unlist(str_split(input$gene_list), ','),
         hpa_dat = hpa_dat, 
@@ -116,14 +118,17 @@ shinyApp(
         stained_gene_data = as.logical(input$stain_gene_results),
         tested_protein_column = as.logical(input$tested_protein_column),
         cancer_analysis = input$cancer_analysis,
-        drop_na_row = as.logical(input$drop_na_rows_in)
+        drop_na_row = as.logical(input$drop_na_rows_in),
+        adjusted_pvals = as.logical(input$adjusted_pvals))
         
-        
-        
-      ))
+      
+      )
       
       
     })
+    
+    
+    
     
     output$table <- DT::renderDataTable(print(n1()))
     
