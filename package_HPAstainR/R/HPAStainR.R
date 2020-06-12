@@ -36,7 +36,7 @@
 
 
 
-HPAstainR_test <- function(gene_list, hpa_dat,
+HPAStainR <- function(gene_list, hpa_dat,
                       cancer_dat = data.frame(),
                       cancer_analysis = c("normal", "cancer", "both"), # weight_stain = F, weight_reliability = F,
                       tissue_level = TRUE,
@@ -47,7 +47,8 @@ HPAstainR_test <- function(gene_list, hpa_dat,
                       stained_gene_data = TRUE,
                       tested_protein_column = TRUE,
                       percent_or_count = c("percent", "count", "both"),
-                      drop_na_row = FALSE) {
+                      drop_na_row = FALSE,
+                      adjusted_pvals = TRUE) {
   
   #Catch issues
   if (cancer_analysis == "normal" | cancer_analysis == "both") {
@@ -586,6 +587,8 @@ HPAstainR_test <- function(gene_list, hpa_dat,
     p_val_adj = format.pval(p_val_adj, round_to, .005)
   )
   
+  
+  
   # Change names-----------------
   if (csv_names == T) {
     cell_type_out <- cell_type_out %>% select(cell_type,
@@ -646,6 +649,13 @@ HPAstainR_test <- function(gene_list, hpa_dat,
   if (tested_protein_column == F) {
     cell_type_out <- cell_type_out[, -grep("ested", colnames(cell_type_out))]
   }
+  
+  #Final changes
+  if (adjusted_pvals == F) {
+    cell_type_out <- cell_type_out[, -grep("dj", colnames(cell_type_out))]
+  }
+  
+  
   
   
   #Returning final table -------------
