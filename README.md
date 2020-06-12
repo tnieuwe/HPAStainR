@@ -1,26 +1,27 @@
 # HPAStain.R
 
-HPAStain.R is an R based tool used to query the Human Protein Atlas for staining data. The purpose of this tool is to test if a list of proteins is associated with a certain cell type in a tissue. E.g. you have a list of protein coding genes from a differential expression single cell analysis and want to see if these proteins are associated with a known cell type. Instead of querying HPA multiple times you can load your list in HPAStain.R which will return a ranked table of the cell types with the most protein staining.
+HPAStain.R is an R based package/Shiny app used to query the Human Protein Atlas for staining data. The purpose of this tool is to test if a list of proteins/genes is associated with a certain cell type in a HPA tested tissue. E.g. you have a list of protein coding genes from a differential expression single cell analysis and want to see if these proteins are associated with a known cell type. Instead of querying HPA multiple times you can load your list in HPAStainR which will return a ranked table of the cell types with the most protein staining.
 
-This is my first time developing a tool on github, any and all feedback is appreciated!
+This is my first time developing a package on Github, any and all feedback is appreciated!
 
 ## Getting Started
 
-HPAStain.R in its current form is a shiny app an an R function. As it is a single function have not turned it into a package and so to use the function you can just copy or clone the function from the R code (working on streamlining this)
+HPAStainR in its current form is a online Shiny app and R package. The package is not available on CRAN or Bioconductor, but that is our next step, until then feel free to download the binary from the github and install it.
 
 Another way to use it is go to my shiny app website posted here and above:
 https://32tim32.shinyapps.io/HPAStainR/ 
 
 ### Prerequisites
 
-To run the shinyapp locally you will need the shiny library otherwise you only need tidyverse and the two datasets below:
+The R packages `tidyverse` and `shiny` are required for HPAStainR
+
+The datasets required are below, but HPAStainR package has a function, `HPA_data_downlader()` that can download them for you either permanently or temporarily (`save_file` argument):
 
 Normal Tissue: https://www.proteinatlas.org/download/normal_tissue.tsv.zip
 
 Cancer Tissue: https://www.proteinatlas.org/download/pathology.tsv.zip
 
-Note these are large files but required to run HPAStain.R, you could also make a pipeline with the package hpar if you are inclined to working completely in R. 
-
+*Note*: these are large files but required to run HPAStainR
 
 ## Built With
 
