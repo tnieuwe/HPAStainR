@@ -1,0 +1,352 @@
+---
+title: "HPAStainR vs Single Cell Data"
+author: "Tim Nieuwenhuis"
+date: "5/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(HPAstainR)
+```
+
+
+Insert HPAStainR function and uhhh I should probably make this a package
+```{r}
+
+hpa_dat <- read.table("../normal_tissue.tsv", sep = '\t', header = TRUE, stringsAsFactors = F)
+
+```
+
+
+
+
+```{r read in pangloa data}
+dat <- read.table("PanglaoDB_markers_27_Mar_2020.tsv", sep = "\t", header = T, stringsAsFactors = F)
+
+head(dat)
+
+start_dat <- dat
+
+#Remove mouse data, product description, and nickname column
+dat <- dat %>% select(-ends_with("mouse"), -nicknames, -product.description) %>%
+  #protein coding only and mouse exclusive
+  filter(species != "Mm",gene.type == "protein-coding gene" | gene.type == "protein coding gene") %>%
+  #Make data more easily jive with hpastainr such as lungs vs lung
+  mutate(organ = ifelse(organ == "Lungs", "Lung", organ),
+         organ = ifelse(organ == "Heart", "Heart Muscle", organ)) %>%
+  #make comprable column to hpastainr
+  mutate(stainr_col = paste0(toupper(organ), " ", tolower(cell.type)))
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+#So we need to loop through the stainr_col groupings
+groupings <- unique(dat$stainr_col)
+
+
+cell_type <- groupings[1]
+
+final_df <- NULL
+no_stain <- NULL
+for (cell_type in groupings) {
+  
+  sub_dat <- dat %>% filter(stainr_col == cell_type)
+  genes <- sub_dat$official.gene.symbol
+  
+  stain_result <- HPAstainR(gene_list = genes,hpa_dat = hpa_dat, cancer_analysis = "normal", csv_names = T)
+  
+  stain_result
+  
+  if (is.na(stain_result[1,2])) {
+    no_stain <- c(no_stain, cell_type)
+    next
+  }
+  
+  #Make a filter to get top stainr result from a tissue
+  stain_result  <- stain_result %>% mutate(tissue = str_sub(cell_type, start = 1, end = (str_locate(cell_type,"-"))[,1]  -2),
+                                           stained_count = str_count(detected_proteins,",") + 1)
+  
+  
+  top_result <- stain_result$cell_type[1]
+  top_stain <- stain_result$staining_score[1]
+  top_pval <- stain_result$p_val[1]
+  top_adj_pval <- stain_result$p_val_adj[1]
+
+  #Top hit within a given tissue need to make this robust to GI tract and brain
+  
+  #normal
+  sub_stain <- stain_result %>% filter(tissue == toupper(unique(sub_dat$organ)))
+  
+  
+  if (is.na(unique(sub_dat$organ))) {
+    sub_dat$organ <- ""
+  }
+  
+  #GI tract
+  if ("GI TRACT" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("COLON", "DUODENUM", "RECTUM", "SMALL INTESTINE"))
+  }
+  
+  #Blood brain barrier
+  if ("BRAIN" == toupper(unique(sub_dat$organ)) | "endothelial cells (blood brain barrier)" == tolower(unique(sub_dat$cell.type))) {
+    #Brain
+    sub_stain <- stain_result %>% filter(tissue %in% c("CAUDATE","CEREBELLUM", "CEREBRAL CORTEX","CHOROID PLEXUS", "DORSAL RAPHE", "HIPPOCAMPUS", "HYPOTHALAMUS", "PITUITARY GLAND", "SUBSTANTIA NIGRA"))
+    }
+  #Eye
+      if ("EYE" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("RETINA"))
+      }
+  #Breast
+   if ("MAMMARY GLAND" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("BREAST", "LACTATING BREAST"))
+    }
+  
+    #reproductive
+   if ("REPRODUCTIVE" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("TESTIS", "OVARY"))
+   }
+      #adrenal
+   if ("ADRENAL GLANDS" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("ADRENAL GLAND"))
+   }
+  
+        #throid
+   if ("THYROID" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("THYROID GLAND"))
+   }
+  
+          #ENDOTHELIAL
+   if ("endothelial cells (aorta)" == tolower(unique(sub_dat$cell.type))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("COLON"))
+    }
+  
+  
+        #bone and blood
+   if ("BONE" == toupper(unique(sub_dat$organ)) | "BLOOD" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("BONE MARROW"))
+   }
+  
+     if ("OLFACTORY SYSTEM" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("NASOPHARYNX"))
+     }
+  
+       if ("IMMUNE SYSTEM" == toupper(unique(sub_dat$organ))) {
+    
+    sub_stain <- stain_result %>% filter(tissue %in% c("BONE MARROW", "THYMUS", "LYMPH NODE", "TONSIL"))
+    }
+  
+  
+   if ("CONNECTIVE TISSUE" == toupper(unique(sub_dat$organ))) {
+    #Brain
+    sub_stain <- stain_result %>% filter(tissue %in% c("ADIPOSE TISSUE", "SOFT TISSUE"))
+    }
+  
+  top_tiss_result <- sub_stain$cell_type[1]
+  top_tiss_stain <- sub_stain$staining_score[1]
+  top_tiss_pval <- sub_stain$p_val[1]
+  top_tiss_adj_pval <- sub_stain$p_val_adj[1]
+  if (nrow(sub_stain) == 0) {
+    top_tiss_result <- "tissue not found"
+  }
+  proteins_used <- length(unique(sub_dat$official.gene.symbol))
+  
+  top_10_avg_prot_tested <- mean(head(stain_result$number_of_proteins))
+  
+  #Make confidence score to account for low protein count not being taken into account
+  
+  #Below is marc's version
+  
+  conf_score <- ifelse(proteins_used > 50, 50, proteins_used) * 0.02 * top_stain
+  
+  if (is.null(top_adj_pval)) {
+    top_adj_pval =1.1 
+    top_tiss_adj_pval =1.1
+     top_pval =1.1 
+    top_tiss_pval =1.1
+  }
+  
+  temp_dat <- data.frame(cell_type, conf_score, proteins_used, top_10_avg_prot_tested, top_result, top_stain, top_pval, top_adj_pval, top_tiss_result, top_tiss_stain,top_tiss_pval, top_tiss_adj_pval, stringsAsFactors = F)
+  
+  final_df <- rbind(final_df, temp_dat)
+}
+
+
+stain_result$number_of_proteins * stain_result$percent_not_detected
+
+#Testing stuff
+
+length(strsplit(stain_result$tested_proteins, ",")[1])
+
+unlist(str_split(stain_result$tested_proteins, ","))
+
+
+stain_result %>% mutate(n_prot_stained = str_count(detected_proteins,",") + 1)
+
+length(str_split(stain_result$detected_proteins, ",")[[1]])
+
+```
+
+Current report for Marc
+```{r}
+
+write.csv(final_df, "current_hpastainr_results_function_version.csv", row.names = F)
+
+avail_hpa_tissue_cells = unique(stain_result$cell_type)
+avail_pangloa_tissue_cells = unique(dat$stainr_col)
+
+length(avail_hpa_tissue_cells)
+length(avail_pangloa_tissue_cells)
+
+avail_hpa_tissue_cells <- c(avail_hpa_tissue_cells, rep("", length(avail_pangloa_tissue_cells) - length(avail_hpa_tissue_cells)))
+
+tissues_and_cells <- cbind(avail_hpa_tissue_cells, avail_pangloa_tissue_cells)
+
+colnames(tissues_and_cells) <- c("Tissue - Cells in HPA", " Tissue - Cells in PanglaoDB")
+
+write.csv(tissues_and_cells, "panglao_v_hpa.csv", row.names = F)
+
+```
+
+Do samples agreeing correlated with confidence score?
+```{r}
+
+conf_dat <- read.csv(file = "current_hpastainr_results_marked_marc_correct.csv", stringsAsFactors = F)
+
+conf_dat$matches <- "no_match" 
+
+conf_dat$matches[conf_dat$Match.Top == 1] <- "top_match"
+conf_dat$matches[conf_dat$Match.Tiss == 1] <- "top_tissue_match"
+
+
+conf_dat$matches <- factor(conf_dat$matches, levels = c("no_match", "top_tissue_match", "top_match"))
+
+conf_dat_all_match <- filter(conf_dat, !(is.na(top_tiss_stain)))
+
+ggplot(conf_dat_all_match) + geom_violin(aes(x=matches, y = conf_score, fill = matches)) + geom_jitter(aes(x=matches, y = conf_score))
+
+ggplot(conf_dat) + geom_violin(aes(x=matches, y =top_stain))
+
+ggplot(conf_dat) + geom_violin(aes(x=matches, y =top_tiss_stain))
+
+
+
+
+
+```
+Dat and HPA dat summary stats
+```{r}
+summ_dat <- dat %>% group_by(cell.type) %>% summarize(genes = n())
+
+ggplot(summ_dat, aes(x=genes)) + 
+  geom_histogram(color="black", fill="white") + xlab("Marker Genes Per Cell Type") +labs(title ="PanglaoDB Markers per cell type",
+                                                                                            subtitle =  paste("N = ", nrow(summ_dat)))
+ggsave("pangloa_markers.png")
+
+#########
+
+hpa_dat_new <- hpa_dat %>% 
+      mutate(Tissue = gsub('[[:digit:]]+', '', Tissue), tissue_cell = paste0(toupper(str_trim(Tissue))," - ", Cell.type)) %>% distinct()
+
+hpa_dat_sum <- hpa_dat_new %>% group_by(tissue_cell) %>%
+  summarise(proteins = n(), detected = sum(!(Level %in% "Not detected")) ) %>%
+  mutate(det_o_test = detected/proteins, amount_tested = ifelse(proteins <= 50, "less than or equal to 50", 
+                                                          ifelse(proteins > 50 & proteins <= 700, "between 51-700",
+                                                          ifelse(proteins > 700 & proteins <= 15000, "between 701-15,000",
+                                                          "greater than 15,000")))) %>% filter(tissue_cell != "N/A - N/A")
+
+ggplot(hpa_dat_sum, aes(x=(proteins))) + 
+  geom_histogram(color="black", fill="white", bins=100) + xlab("Tested Proteins Per Cell Type") +
+                                                          labs( title ="Human Protein Atlas Count of Tested Proteins per Cell Type",
+                                                               subtitle = paste("N = ", nrow(hpa_dat_sum),"; 100 bins")) +
+  geom_vline(xintercept= c(50,700, 15000), linetype = c("longdash"), color = c("blue","red", "dark green"), size = 1.2) +
+  geom_segment(aes(x = c(5000), xend = c(10000), y = c(20), yend = c(20)), color = "blue" , linetype = c("longdash"), size = 1.2) +
+  geom_segment(aes(x = c(5000), xend = c(10000), y = c(30), yend = c(30)), color = "red", linetype = c("longdash"), size = 1.2) +
+  geom_segment(aes(x = c(5000), xend = c(10000), y = c(40), yend = c(40)), color = "dark green", linetype = c("longdash"), size = 1.2) +
+  annotate(geom="text", #angle = 90, vjust = 1.3,
+           size = 5,  
+           x=c(7500, 7500, 7500), 
+           y=c(25, 35, 45), 
+           label=c("50 Protein Line", "700 Protein Line", "15000 Protein Line")
+              #color="red"
+          
+           )
+
+ggsave("proteins_tested.png")
+
+ggplot(hpa_dat_sum, aes(x=detected)) + 
+  geom_histogram(aes(fill =amount_tested),color="black", bins=50) + xlab("Detected Proteins Per Cell Type") +labs(title="HPA detected proteins",
+                                                                                              subtitle =paste("N = ", nrow(hpa_dat_sum)))
+ggsave("proteins_detected.png")
+
+
+ggplot(hpa_dat_sum, aes(x=det_o_test)) + 
+  geom_histogram(aes(fill =amount_tested), color="black") + xlab("Detected/Tested Proteins Per Cell Type") +labs(title="HPA detected/tested proteins",
+                                                                                              subtitle =paste("N = ", nrow(hpa_dat_sum)))
+ggsave("proteins_detected_divby_tested.png")
+
+
+write.csv(hpa_dat_sum, "hpa_cell_type_protein_summary.csv",row.names = F)
+
+
+
+
+
+
+
+```
+
+Compare p-vals to go
+```{r}
+
+bonf_pval <- read.table(file = "lung_genes_bonf.txt", sep= "\t", skip = 12, header = T)
+
+
+fdr_pval <- read.table(file = "lung_genes_fdr.txt", sep= "\t", skip = 11, header = T)
+
+p_test_genes <- c("MTND1P23", "MFSD2A", "CHIAP2", "CHIA", "TNR", "SLC26A9", "PIGR", 
+"C4BPA", "SFTPB", "AC008268.1", "SCN1A", "LRP2", "CCL20", "SLC6A20", 
+"LAMP3", "FGFBP1", "HHIP", "FGA", "FGG", "F11", "DPCR1", "PGC", 
+"ADGRF1", "ROS1", "LGI3", "SFTPC", "RP11-238K6.1", "RP11-408O19.5", 
+"HKDC1", "SFTPA2", "SFTPA1", "SFTPD", "ANKRD1", "CRTAC1", "DMBT1", 
+"ABCC8", "SAA1", "ELF5", "RND1", "SLC5A8", "FREM2", "CPB2", "PLA2G4F", 
+"RASGRF1", "IRX6", "ALOX15B", "KRT16P2", "CSF3", "FUT3", "CXCL17", 
+"NAPSA", "HAS1", "PCSK2", "LL22NC03-N95F10.1", "PLA2G3", "AGTR2", 
+"SLC6A14")
+
+p_test_out <- stainR(gene_list = p_test_genes, hpa_dat = hpa_dat, csv_names = T)
+
+
+p_test_out$p_val_log10 <- -log10(p_test_out$p_val_adj)
+
+
+bonf_pval$log10_pval <- -log10(bonf_pval$upload_1..P.value.)
+
+fdr_pval$log10_pval <- -log10(fdr_pval$upload_1..FDR.)
+
+hist(p_test_out$p_val_log10)
+
+hist(bonf_pval$log10_pval)
+
+hist(fdr_pval$log10_pval)
+```
+
+
+
