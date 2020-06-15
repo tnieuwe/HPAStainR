@@ -113,9 +113,11 @@ hpa_summary <- hpa_summary_maker(hpa_dat = HPA_data$hpa_dat)
 shiny_HPAStainR(hpa_dat = HPA_data$hpa_dat,
                 cancer_dat = HPA_data$cancer_dat,
                 cell_type_data = hpa_summary)
+
+
 ```
 ### A window should open like that below
-![Shiny Output](shiny_output.png)
+![Shiny Output](shiny_output_6_15_20.png)
 You should now be able to query whatever list of proteins you like and can easily rank them on whatever column you wish. Also all of the options from the functions are modifiable on the left hand side panel.
 
 

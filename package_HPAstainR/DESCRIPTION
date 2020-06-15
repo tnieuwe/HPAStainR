@@ -10,5 +10,5 @@ Description: This package is built around the HPAStainR function. The purpose of
 License: GNU
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.1.0), tidyverse, shiny
+Depends: R (>= 3.1.0), tidyverse, shiny, scales
 RoxygenNote: 7.1.0

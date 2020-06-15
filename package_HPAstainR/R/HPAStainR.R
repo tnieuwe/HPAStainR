@@ -608,7 +608,12 @@ HPAStainR <- function(gene_list, hpa_dat,
   }
   
   if (csv_names == F) {
-    cell_type_out <- cell_type_out %>% select(
+    cell_type_out <- cell_type_out %>% 
+      mutate(High = percent(High, acccuracy = 0.1),
+             Medium = percent(Medium, accuracy = 0.1),
+             Low = percent(Low, accuracy = 0.1),
+             `Not detected` = percent(`Not detected`, accuracy = 0.1)) %>%
+      select(
       `Cell Type` = cell_type,
       `Percent High Expression` = High,
       `High Expression Count` = high_expression_count,
@@ -651,9 +656,11 @@ HPAStainR <- function(gene_list, hpa_dat,
   }
   
   #Final changes
+  #Make adjusted pvalues optional
   if (adjusted_pvals == F) {
     cell_type_out <- cell_type_out[, -grep("dj", colnames(cell_type_out))]
   }
+ 
   
   
   

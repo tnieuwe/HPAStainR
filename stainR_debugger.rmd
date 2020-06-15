@@ -26,6 +26,7 @@ high count medium count low count
 knitr::opts_chunk$set(echo = TRUE)
 library(shiny)
 library(tidyverse)
+library(scales)
 ```
 
 Load data
