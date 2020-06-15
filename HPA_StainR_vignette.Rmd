@@ -35,7 +35,7 @@ library(HPAStainR)
 HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = T)
 ```
 
-The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for `save location` this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called `hpa_dat` and `cancer_dat` which hold the normal tissue and cancer tissue data respectively. For convienence if you run the code again and the file already exists it will just reload the file instead of redownloading it. You can also have save_file as false if you do not want to keep the HPA data, instead it will download the data as a temporary file, but the data will still load into whatever object you point to.
+The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for `save location` this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called `hpa_dat` and `cancer_dat` which hold the normal tissue and cancer tissue data respectively. For convenience if you run the code again and the file already exists it will just reload the file instead of redownloading it. You can also have save_file as false if you do not want to keep the HPA data, instead it will download the data as a temporary file, but the data will still load into whatever object you point to.
 
 ### Head of normal tissue 
 ```{r, echo=FALSE, results='asis', normal_data}

@@ -8,11 +8,11 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(HPAstainR)
+library(HPAStainR)
 ```
 
 
-Load HPA data
+### Load HPA data
 ```{r}
 
 hpa_dat <- read.table("../normal_tissue.tsv", sep = '\t', header = TRUE, stringsAsFactors = F)
@@ -21,7 +21,7 @@ hpa_dat <- read.table("../normal_tissue.tsv", sep = '\t', header = TRUE, strings
 
 
 
-Read in panglao DB's
+### Read in PanglaoDB
 ```{r read in pangloa data}
 dat <- read.table("PanglaoDB_markers_27_Mar_2020.tsv", sep = "\t", header = T, stringsAsFactors = F)
 
@@ -42,11 +42,8 @@ dat <- dat %>% select(-ends_with("mouse"), -nicknames, -product.description) %>%
 
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
+## The for loop that runs PanglaoDB through HPAStainR
+```{r }
 
 #Get a list of panglao cell types
 groupings <- unique(dat$stainr_col)
@@ -67,7 +64,7 @@ for (cell_type in groupings) {
   #Pull out the list of genes
   genes <- sub_dat$official.gene.symbol
   #Run HPAStainR
-  stain_result <- HPAstainR(gene_list = genes,hpa_dat = hpa_dat, cancer_analysis = "normal", csv_names = T)
+  stain_result <- HPAStainR(gene_list = genes,hpa_dat = hpa_dat, cancer_analysis = "normal", csv_names = T)
   
   stain_result
   
@@ -105,9 +102,18 @@ for (cell_type in groupings) {
   }
   
   #Blood brain barrier
-  if ("BRAIN" == toupper(unique(sub_dat$organ)) | "endothelial cells (blood brain barrier)" == tolower(unique(sub_dat$cell.type))) {
+  if ("BRAIN" == toupper(unique(sub_dat$organ)) |
+      "endothelial cells (blood brain barrier)" == tolower(unique(sub_dat$cell.type))) {
     #Brain
-    sub_stain <- stain_result %>% filter(tissue %in% c("CAUDATE","CEREBELLUM", "CEREBRAL CORTEX","CHOROID PLEXUS", "DORSAL RAPHE", "HIPPOCAMPUS", "HYPOTHALAMUS", "PITUITARY GLAND", "SUBSTANTIA NIGRA"))
+    sub_stain <- stain_result %>% filter(tissue %in% c("CAUDATE",
+                                                       "CEREBELLUM",
+                                                       "CEREBRAL CORTEX",
+                                                       "CHOROID PLEXUS",
+                                                       "DORSAL RAPHE",
+                                                       "HIPPOCAMPUS",
+                                                       "HYPOTHALAMUS",
+                                                       "PITUITARY GLAND",
+                                                       "SUBSTANTIA NIGRA"))
     }
   #Eye
       if ("EYE" == toupper(unique(sub_dat$organ))) {
@@ -117,13 +123,15 @@ for (cell_type in groupings) {
   #Breast
    if ("MAMMARY GLAND" == toupper(unique(sub_dat$organ))) {
     
-    sub_stain <- stain_result %>% filter(tissue %in% c("BREAST", "LACTATING BREAST"))
+    sub_stain <- stain_result %>% filter(tissue %in% c("BREAST",
+                                                       "LACTATING BREAST"))
     }
   
     #reproductive
    if ("REPRODUCTIVE" == toupper(unique(sub_dat$organ))) {
     
-    sub_stain <- stain_result %>% filter(tissue %in% c("TESTIS", "OVARY"))
+    sub_stain <- stain_result %>% filter(tissue %in% c("TESTIS",
+                                                       "OVARY"))
    }
       #adrenal
    if ("ADRENAL GLANDS" == toupper(unique(sub_dat$organ))) {
@@ -157,13 +165,17 @@ for (cell_type in groupings) {
   
        if ("IMMUNE SYSTEM" == toupper(unique(sub_dat$organ))) {
     
-    sub_stain <- stain_result %>% filter(tissue %in% c("BONE MARROW", "THYMUS", "LYMPH NODE", "TONSIL"))
+    sub_stain <- stain_result %>% filter(tissue %in% c("BONE MARROW",
+                                                       "THYMUS",
+                                                       "LYMPH NODE",
+                                                       "TONSIL"))
     }
   
   
    if ("CONNECTIVE TISSUE" == toupper(unique(sub_dat$organ))) {
     #Brain
-    sub_stain <- stain_result %>% filter(tissue %in% c("ADIPOSE TISSUE", "SOFT TISSUE"))
+    sub_stain <- stain_result %>% filter(tissue %in% c("ADIPOSE TISSUE",
+                                                       "SOFT TISSUE"))
     }
   
   #Stores the top result from the correct tissue in an object
@@ -214,22 +226,16 @@ for (cell_type in groupings) {
 }
 
 head(final_df)
+write.csv(final_df, "supplemental_table_1_final_df_output.csv", row.names = F)
 ```
 
-Writing out different tables for the paper
+## PanglaoDB Data summary
+### Includes unused csv and supplemental figure 1
 ```{r}
-
-write.csv(final_df, "supplemental_table_1_final_df_output.csv", row.names = F)
-
-
-
 
 #Comparing available cell types between Panglao and HPA
 avail_hpa_tissue_cells = unique(stain_result$cell_type)
 avail_pangloa_tissue_cells = unique(dat$stainr_col)
-
-length(avail_hpa_tissue_cells)
-length(avail_pangloa_tissue_cells)
 
 avail_hpa_tissue_cells <- c(avail_hpa_tissue_cells,
                             rep("", length(avail_pangloa_tissue_cells) - length(avail_hpa_tissue_cells)))
@@ -240,37 +246,6 @@ colnames(tissues_and_cells) <- c("Tissue - Cells in HPA", " Tissue - Cells in Pa
 
 write.csv(tissues_and_cells, "panglao_v_hpa_available_cell_types.csv", row.names = F)
 
-```
-
-Do samples agreeing correlated with confidence score?
-```{r}
-
-conf_dat <- read.csv(file = "current_hpastainr_results_marked_marc_correct.csv", stringsAsFactors = F)
-
-conf_dat$matches <- "no_match" 
-
-conf_dat$matches[conf_dat$Match.Top == 1] <- "top_match"
-conf_dat$matches[conf_dat$Match.Tiss == 1] <- "top_tissue_match"
-
-
-conf_dat$matches <- factor(conf_dat$matches, levels = c("no_match", "top_tissue_match", "top_match"))
-
-conf_dat_all_match <- filter(conf_dat, !(is.na(top_tiss_stain)))
-
-ggplot(conf_dat_all_match) + geom_violin(aes(x=matches, y = conf_score, fill = matches)) + geom_jitter(aes(x=matches, y = conf_score))
-
-ggplot(conf_dat) + geom_violin(aes(x=matches, y =top_stain))
-
-ggplot(conf_dat) + geom_violin(aes(x=matches, y =top_tiss_stain))
-
-
-
-
-
-```
-
-Dat and HPA dat summary stats
-```{r}
 
 #Make a histogram of how many marker genes there are per cell type
 summ_dat <- dat %>% group_by(cell.type) %>% summarize(genes = n())
@@ -283,7 +258,12 @@ ggplot(summ_dat, aes(x=genes)) +
 
 ggsave("supplemental_figure_1_pangloa_hist.png")
 
-#########
+```
+
+## HPA Data Summary
+### Includes Supplemental Figure 2-4 and Supplemental Table 4
+```{r}
+
 
 #Generate data to gain an understanding of the amount of proteins tested to the amount of proteins stained
 
@@ -343,27 +323,33 @@ ggplot(hpa_dat_sum, aes(x=(proteins))) +
           
            )
 
-ggsave("proteins_tested.png")
+ggsave("supplemental_figure_2_proteins_tested.png")
 
 ggplot(hpa_dat_sum, aes(x=detected)) + 
-  geom_histogram(aes(fill =amount_tested),color="black", bins=50) + xlab("Detected Proteins Per Cell Type") +labs(title="HPA detected proteins",
-                                                                                              subtitle =paste("N = ", nrow(hpa_dat_sum)))
-ggsave("proteins_detected.png")
+  geom_histogram(aes(fill =amount_tested),color="black", bins=50) +
+  xlab("Detected Proteins Per Cell Type") +
+  labs(title="HPA detected proteins",
+  subtitle =paste("N = ", nrow(hpa_dat_sum)))
+
+ggsave("supplemental_figure_3_proteins_detected.png")
 
 
 ggplot(hpa_dat_sum, aes(x=det_o_test)) + 
-  geom_histogram(aes(fill =amount_tested), color="black") + xlab("Detected/Tested Proteins Per Cell Type") +labs(title="HPA detected/tested proteins",
-                                                                                              subtitle =paste("N = ", nrow(hpa_dat_sum)))
-ggsave("proteins_detected_divby_tested.png")
+  geom_histogram(aes(fill =amount_tested), color="black") +
+  xlab("Detected/Tested Proteins Per Cell Type") +
+  labs(title="HPA detected/tested proteins",
+       subtitle =paste("N = ", nrow(hpa_dat_sum)))
+
+ggsave("supplemental_figure_4_proteins_detected_divby_tested.png")
 
 
-write.csv(hpa_dat_sum, "hpa_cell_type_protein_summary.csv",row.names = F)
+hpa_dat_sum_out <- select(hpa_dat_sum,
+                          `Cell Type` = tissue_cell,
+                          `Tested Proteins` = proteins,
+                          `Detected Proteins` = detected,
+                          `Detected Tested Ratio` = det_o_test)
 
-
-
-
-
-
+write.csv(hpa_dat_sum_out, "supplemental_table_4_hpa_cell_type_tested_ratio.csv",row.names = F)
 
 ```
 
