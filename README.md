@@ -11,6 +11,8 @@ HPAStainR in its current form is a online Shiny app and R package. The package i
 Another way to use it is go to my shiny app website posted here and above:
 https://32tim32.shinyapps.io/HPAStainR/ 
 
+There is also a brief [vignette](https://htmlpreview.github.io/?https://github.com/32tim32/stainR/blob/master/HPA_StainR_vignette_6_11_20.html) to get you started with the package as well.
+
 ### Prerequisites
 
 The R packages `tidyverse` and `shiny` are required for HPAStainR
