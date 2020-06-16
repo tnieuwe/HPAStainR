@@ -28,14 +28,14 @@ HPAStainR is a package designed to query the pathologist scored staining data of
 # Preparing data for HPAStainR
 
 ## Downloading data from the website
-The first step required to run HPAStainR is downloading HPA's normal tissue staining data and their cancer data. The data is available at https://www.proteinatlas.org/about/download, the files required being [normal_tissue.tsv.zip](https://www.proteinatlas.org/download/normal_tissue.tsv.zip) and [pathology.tsv.zip](https://www.proteinatlas.org/download/pathology.tsv.zip. However, HPAStainR as a function that can download and load the data for you.
+The first step required to run HPAStainR is downloading HPA's normal tissue staining data and their cancer data. While available online, HPAStainR has a function that can download and load the data for you.
 ```{r, download_data}
 library(HPAStainR)
 
 HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = T)
 ```
 
-The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for `save location` this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called `hpa_dat` and `cancer_dat` which hold the normal tissue and cancer tissue data respectively. For convenience if you run the code again and the file already exists it will just reload the file instead of redownloading it. You can also have save_file as false if you do not want to keep the HPA data, instead it will download the data as a temporary file, but the data will still load into whatever object you point to.
+The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for `save location` this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called `hpa_dat` and `cancer_dat` which hold the normal tissue and cancer tissue data respectively. If the code is ran again it will use the previously saved files and not redownload them. 
 
 ### Head of normal tissue 
 ```{r, echo=FALSE, results='asis', normal_data}
@@ -90,11 +90,7 @@ The output of HPAStainR is a tibble with multiple columns. The basic columns inc
   - **p_val_adjust**: The previous p-value adjusted for multiple testing using "holm"
   
   
-  The **staining score** equation is modeled below, where $t$ is the total number of proteins from the list tested in the cell type, $h$ is the number of proteins with high staining in the cell type, $m$ is the number of proteins with medium staining in the cell type, $l$ is the number of proteins with low staining in the cell type. 
-  
-  
-**Staining Score** = $\displaystyle (\frac{h \times 100}{t}) +(\frac{m \times 50}{t})+(\frac{l \times 25}{t})$
-
+  The **staining score** an arbitrary rank of staining weighted on how highly a protein stained. See the manual for the equation and further information.
 
 
 # Using the HPAStainR Shiny app

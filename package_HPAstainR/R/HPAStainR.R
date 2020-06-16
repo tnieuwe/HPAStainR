@@ -15,10 +15,15 @@
 #' @param csv_names A Boolean determining if you want names suited for a csv file/pipeline, or for presentation.
 #' Default is TRUE giving csv names.
 #' @param stained_gene_data A boolean determining if there is a list of which proteins stained, TRUE is default.
-#' @param tested_protein_column A boolean dsetermining if there is a column listing which proteins were tested, TRUE is default.
+#' @param tested_protein_column A boolean determining if there is a column listing which proteins were tested, TRUE is default.
 #' @param percent_or_count A character string determining if percent of proteins stained, count of proteins stained, or both are shown
 #' for high, medium, and low staining. Must be "percent" (default), "count", or "both".
 #' @param drop_na_row A boolean that determines if cell types with no proteins tested are kept or dropped, default is FALSE.
+#' 
+#' @section Details:
+#' Calculation of the staining score below:
+#' \deqn{(\frac{h \times 100}{t}) + (\frac{m \times 50}{t}) + (\frac{l \times 25}{t})}
+#' 
 #' 
 #' @return  A tibble containing the results of HPAStainR.
 #'
@@ -29,6 +34,7 @@
 #' #This examples also uses HPA_data_downloader ouput as an example
 #' 
 #' HPA_out <- HPAStainR(c("PRSS1, "PNLIP", "CELA3A", "PRL"), downloader_out$hpa_dat, downloader_out$cancer_dat, "both")
+
 #' @export
 #'
 #'

@@ -58,6 +58,12 @@ A tibble containing the results of HPAStainR.
 \description{
 Uses a protein/gene list to query Human Protein Atlas (HPA) staining data.
 }
+\section{Details}{
+
+Calculation of the staining score below
+\deqn{(\frac{h \times 100}{t}) + (\frac{m \times 50}{t}) + (\frac{l \times 25}{t})}
+}
+
 \examples{
 HPA_out <- HPAStainR(c("PRSS1, "PNLIP", "CELA3A", "PRL"), hpa_dat, cancer_dat, "both", stringency = "high")
 

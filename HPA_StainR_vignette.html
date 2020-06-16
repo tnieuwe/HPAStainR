@@ -12,7 +12,7 @@
 
 <meta name="author" content="Tim O. Nieuwenhuis" />
 
-<meta name="date" content="2020-06-15" />
+<meta name="date" content="2020-06-16" />
 
 <title>HPAStainR Package Vignette</title>
 
@@ -303,7 +303,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">HPAStainR Package Vignette</h1>
 <h4 class="author">Tim O. Nieuwenhuis</h4>
-<h4 class="date">2020-06-15</h4>
+<h4 class="date">2020-06-16</h4>
 
 
 
@@ -317,15 +317,15 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1>Preparing data for HPAStainR</h1>
 <div id="downloading-data-from-the-website" class="section level2">
 <h2>Downloading data from the website</h2>
-<p>The first step required to run HPAStainR is downloading HPA’s normal tissue staining data and their cancer data. The data is available at <a href="https://www.proteinatlas.org/about/download" class="uri">https://www.proteinatlas.org/about/download</a>, the files required being <a href="https://www.proteinatlas.org/download/normal_tissue.tsv.zip">normal_tissue.tsv.zip</a> and [pathology.tsv.zip](<a href="https://www.proteinatlas.org/download/pathology.tsv.zip" class="uri">https://www.proteinatlas.org/download/pathology.tsv.zip</a>. However, HPAStainR as a function that can download and load the data for you.</p>
+<p>The first step required to run HPAStainR is downloading HPA’s normal tissue staining data and their cancer data. While available online, HPAStainR has a function that can download and load the data for you.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(HPAStainR)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co">#&gt; Loading required package: tidyverse</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#&gt; -- Attaching packages ---------------------------------------------------------------------------- tidyverse 1.3.0 --</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#&gt; -- Attaching packages ------------------------------------------------------------------------------------- tidyverse 1.3.0 --</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">#&gt; v ggplot2 3.3.1     v purrr   0.3.4</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">#&gt; v tibble  3.0.1     v dplyr   1.0.0</span></span>
 <span id="cb1-6"><a href="#cb1-6"></a><span class="co">#&gt; v tidyr   1.1.0     v stringr 1.4.0</span></span>
 <span id="cb1-7"><a href="#cb1-7"></a><span class="co">#&gt; v readr   1.3.1     v forcats 0.5.0</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#&gt; -- Conflicts ------------------------------------------------------------------------------- tidyverse_conflicts() --</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#&gt; -- Conflicts ---------------------------------------------------------------------------------------- tidyverse_conflicts() --</span></span>
 <span id="cb1-9"><a href="#cb1-9"></a><span class="co">#&gt; x dplyr::filter() masks stats::filter()</span></span>
 <span id="cb1-10"><a href="#cb1-10"></a><span class="co">#&gt; x dplyr::lag()    masks stats::lag()</span></span>
 <span id="cb1-11"><a href="#cb1-11"></a><span class="co">#&gt; Loading required package: shiny</span></span>
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-20"><a href="#cb1-20"></a><span class="co">#&gt;     col_factor</span></span>
 <span id="cb1-21"><a href="#cb1-21"></a></span>
 <span id="cb1-22"><a href="#cb1-22"></a>HPA_data &lt;-<span class="st"> </span><span class="kw">HPA_data_downloader</span>(<span class="dt">tissue_type =</span> <span class="st">&quot;both&quot;</span>, <span class="dt">save_file =</span> T)</span></code></pre></div>
-<p>The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for <code>save location</code> this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called <code>hpa_dat</code> and <code>cancer_dat</code> which hold the normal tissue and cancer tissue data respectively. For convienence if you run the code again and the file already exists it will just reload the file instead of redownloading it. You can also have save_file as false if you do not want to keep the HPA data, instead it will download the data as a temporary file, but the data will still load into whatever object you point to.</p>
+<p>The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for <code>save location</code> this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called <code>hpa_dat</code> and <code>cancer_dat</code> which hold the normal tissue and cancer tissue data respectively. If the code is ran again it will use the previously saved files and not redownload them.</p>
 <div id="head-of-normal-tissue" class="section level3">
 <h3>Head of normal tissue</h3>
 <table>
@@ -590,8 +590,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <li><p><strong>p_val</strong>: A p-value denoting an enrichment of rarely staining proteins (stained in &lt;29% of the cell types, see paper [cite] for further details).</p></li>
 <li><p><strong>p_val_adjust</strong>: The previous p-value adjusted for multiple testing using “holm”</p></li>
 </ul>
-<p>The <strong>staining score</strong> equation is modeled below, where <span class="math inline">\(t\)</span> is the total number of proteins from the list tested in the cell type, <span class="math inline">\(h\)</span> is the number of proteins with high staining in the cell type, <span class="math inline">\(m\)</span> is the number of proteins with medium staining in the cell type, <span class="math inline">\(l\)</span> is the number of proteins with low staining in the cell type.</p>
-<p><strong>Staining Score</strong> = <span class="math inline">\(\displaystyle (\frac{h \times 100}{t}) +(\frac{m \times 50}{t})+(\frac{l \times 25}{t})\)</span></p>
+<p>The <strong>staining score</strong> an arbitrary rank of staining weighted on how highly a protein stained. See the manual for the equation and further information.</p>
 </div>
 </div>
 <div id="using-the-hpastainr-shiny-app" class="section level1">
