@@ -221,7 +221,7 @@ for (cell_type in groupings) {
                          top_tiss_adj_pval,
                          stringsAsFactors = F)
   
-  #Biind it
+  #Bind it
   final_df <- rbind(final_df, temp_dat)
 }
 
@@ -250,13 +250,18 @@ write.csv(tissues_and_cells, "panglao_v_hpa_available_cell_types.csv", row.names
 #Make a histogram of how many marker genes there are per cell type
 summ_dat <- dat %>% group_by(cell.type) %>% summarize(genes = n())
 
-ggplot(summ_dat, aes(x=genes)) + 
-  geom_histogram(color="black", fill="white") +
-  xlab("Marker Genes Per Cell Type") + 
-  labs(title ="PanglaoDB Markers per cell type",
-       subtitle =  paste("N = ", nrow(summ_dat)))
 
-ggsave("supplemental_figure_1_pangloa_hist.png")
+summary(summ_dat)
+
+supp_fig_1 <- ggplot(summ_dat, aes(x=genes)) + 
+                geom_histogram(color="black", fill="white") +
+                xlab("Marker Genes Per Cell Type") + 
+                labs(title ="PanglaoDB Markers per cell type",
+                     subtitle =  paste("N = ", nrow(summ_dat)))
+
+supp_fig_1
+  
+ggsave("supplemental_figure_1_pangloa_hist.png", width = 8, height = 7)
 
 ```
 
@@ -274,6 +279,7 @@ hpa_dat_new <- hpa_dat %>%
       distinct()
 
 
+
 #Generate a summary of hpa_summary
 hpa_dat_sum <- hpa_dat_new %>% group_by(tissue_cell) %>%
   summarise(proteins = n(), detected = sum(!(Level %in% "Not detected")) ) %>%
@@ -285,62 +291,82 @@ hpa_dat_sum <- hpa_dat_new %>% group_by(tissue_cell) %>%
     filter(tissue_cell != "N/A - N/A")
 
 
-ggplot(hpa_dat_sum, aes(x=(proteins))) + 
-  geom_histogram(color="black", fill="white", bins=100) +
-  xlab("Tested Proteins Per Cell Type") +
-  labs( title ="Human Protein Atlas Count of Tested Proteins per Cell Type",
-        subtitle = paste("N = ", nrow(hpa_dat_sum),"; 100 bins")) +
-  geom_vline(xintercept= c(50,700, 15000),
-             linetype = c("longdash"),
-             color = c("blue","red", "dark green"),
-             size = 1.2) +
-  geom_segment(aes(x = c(5000),
-                   xend = c(10000),
-                   y = c(20),
-                   yend = c(20)),
-               color = "blue",
-               linetype = c("longdash"),
-               size = 1.2) +
-  geom_segment(aes(x = c(5000),
-                   xend = c(10000),
-                   y = c(30),
-                   yend = c(30)),
-               color = "red",
-               linetype = c("longdash"), size = 1.2) +
-  geom_segment(aes(x = c(5000),
-                   xend = c(10000),
-                   y = c(40),
-                   yend = c(40)),
-               color = "dark green",
-               linetype = c("longdash"),
-               size = 1.2) +
-  annotate(geom="text", #angle = 90, vjust = 1.3,
-           size = 5,  
-           x=c(7500, 7500, 7500), 
-           y=c(25, 35, 45), 
-           label=c("50 Protein Line", "700 Protein Line", "15000 Protein Line")
-              #color="red"
-          
-           )
+hpa_dat_sum$amount_tested <- factor(hpa_dat_sum$amount_tested,
+                                    levels = c("less than or equal to 50",
+                                               "between 51-700",
+                                               "between 701-15,000",
+                                               "greater than 15,000"))
 
-ggsave("supplemental_figure_2_proteins_tested.png")
+stat_mode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
 
-ggplot(hpa_dat_sum, aes(x=detected)) + 
-  geom_histogram(aes(fill =amount_tested),color="black", bins=50) +
-  xlab("Detected Proteins Per Cell Type") +
-  labs(title="HPA detected proteins",
-  subtitle =paste("N = ", nrow(hpa_dat_sum)))
-
-ggsave("supplemental_figure_3_proteins_detected.png")
+stat_mode(hpa_dat_sum$proteins)
+summary(hpa_dat_sum$proteins)
 
 
-ggplot(hpa_dat_sum, aes(x=det_o_test)) + 
-  geom_histogram(aes(fill =amount_tested), color="black") +
-  xlab("Detected/Tested Proteins Per Cell Type") +
-  labs(title="HPA detected/tested proteins",
-       subtitle =paste("N = ", nrow(hpa_dat_sum)))
+supp_fig_2 <- ggplot(hpa_dat_sum, aes(x=(proteins))) + 
+              geom_histogram(color="black", fill="white", bins=100) +
+              xlab("Tested Proteins Per Cell Type") +
+              labs( title ="Human Protein Atlas Count of Tested Proteins per Cell Type",
+                    subtitle = paste("N = ", nrow(hpa_dat_sum),"; 100 bins")) +
+              geom_vline(xintercept= c(50,700, 15000),
+                         linetype = c("longdash"),
+                         color = c("blue","red", "dark green"),
+                         size = 1.2) +
+              geom_segment(aes(x = c(5000),
+                               xend = c(10000),
+                               y = c(20),
+                               yend = c(20)),
+                           color = "blue",
+                           linetype = c("longdash"),
+                           size = 1.2) +
+              geom_segment(aes(x = c(5000),
+                               xend = c(10000),
+                               y = c(30),
+                               yend = c(30)),
+                           color = "red",
+                           linetype = c("longdash"), size = 1.2) +
+              geom_segment(aes(x = c(5000),
+                               xend = c(10000),
+                               y = c(40),
+                               yend = c(40)),
+                           color = "dark green",
+                           linetype = c("longdash"),
+                           size = 1.2) +
+              annotate(geom="text", #angle = 90, vjust = 1.3,
+                       size = 5,  
+                       x=c(7500, 7500, 7500), 
+                       y=c(25, 35, 45), 
+                       label=c("50 Protein Line", "700 Protein Line", "15,000 Protein Line")
+                          #color="red"
+                      
+                       )
+supp_fig_2
 
-ggsave("supplemental_figure_4_proteins_detected_divby_tested.png")
+ggsave("supplemental_figure_2_proteins_tested.png", width = 8, height = 7)
+
+supp_fig_3 <- ggplot(hpa_dat_sum, aes(x=detected)) + 
+              geom_histogram(aes(fill =amount_tested),color="black", bins=50) +
+              xlab("Detected Proteins Per Cell Type") +
+              labs(title="HPA detected proteins",
+              subtitle =paste("N = ", nrow(hpa_dat_sum)))
+
+supp_fig_3
+
+ggsave("supplemental_figure_3_proteins_detected.png", width = 8, height = 7)
+
+
+supp_fig_4 <- ggplot(hpa_dat_sum, aes(x=det_o_test)) + 
+              geom_histogram(aes(fill =amount_tested), color="black") +
+              xlab("Detected/Tested Proteins Per Cell Type") +
+              labs(title="HPA detected/tested proteins",
+                   subtitle =paste("N = ", nrow(hpa_dat_sum)))
+
+supp_fig_4
+
+ggsave("supplemental_figure_4_proteins_detected_divby_tested.png", width = 8, height = 7)
 
 
 hpa_dat_sum_out <- select(hpa_dat_sum,
@@ -351,6 +377,15 @@ hpa_dat_sum_out <- select(hpa_dat_sum,
 
 write.csv(hpa_dat_sum_out, "supplemental_table_4_hpa_cell_type_tested_ratio.csv",row.names = F)
 
+
+pdf(file = "Supplemental_Figures.pdf", width = 8.5, height = 7)
+
+supp_fig_1
+supp_fig_2
+supp_fig_3
+supp_fig_4
+
+dev.off()
 ```
 
 
