@@ -38,7 +38,7 @@ Cancer Tissue: https://www.proteinatlas.org/download/pathology.tsv.zip
 
 ## Authors
 
-* **Tim Nieuwenhuis** - *Concept and Coder* - [32tim32](https://github.com/32tim32/)
+* **Tim Nieuwenhuis** - *Concept and Coder* - [tnieuwe](https://github.com/tnieuwe/)
 * **Marc Halushka** - *Mentor* - [mhalushka](https://github.com/mhalushka)
 
 
