@@ -13,7 +13,9 @@
 #'
 #' @examples 
 #' HPA_data <- HPA_data_downloader()
+#' #Access normal data
 #' HPA_data$hpa_dat
+#' #Access cancer data
 #' HPA_data$cancer_dat
 #'
 #'
