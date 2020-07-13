@@ -257,7 +257,8 @@ supp_fig_1 <- ggplot(summ_dat, aes(x=genes)) +
                 geom_histogram(color="black", fill="white") +
                 xlab("Marker Genes Per Cell Type") + 
                 labs(title ="PanglaoDB Markers per cell type",
-                     subtitle =  paste("N = ", nrow(summ_dat)))
+                     subtitle =  paste("N = ", nrow(summ_dat))) +
+                ylab("Count")
 
 supp_fig_1
   
@@ -342,16 +343,20 @@ supp_fig_2 <- ggplot(hpa_dat_sum, aes(x=(proteins))) +
                        label=c("50 Protein Line", "700 Protein Line", "15,000 Protein Line")
                           #color="red"
                       
-                       )
+                       ) +
+              ylab("Count")
+
 supp_fig_2
 
 ggsave("supplemental_figure_2_proteins_tested.png", width = 8, height = 7)
 
 supp_fig_3 <- ggplot(hpa_dat_sum, aes(x=detected)) + 
-              geom_histogram(aes(fill =amount_tested),color="black", bins=50) +
+              geom_histogram(aes(fill = amount_tested),color="black", bins=50) +
               xlab("Detected Proteins Per Cell Type") +
               labs(title="HPA detected proteins",
-              subtitle =paste("N = ", nrow(hpa_dat_sum)))
+              subtitle =paste("N = ", nrow(hpa_dat_sum))) +
+              ylab("Count") + 
+              scale_fill_discrete(name="Number of Proteins Tested")
 
 supp_fig_3
 
@@ -362,7 +367,9 @@ supp_fig_4 <- ggplot(hpa_dat_sum, aes(x=det_o_test)) +
               geom_histogram(aes(fill =amount_tested), color="black") +
               xlab("Detected/Tested Proteins Per Cell Type") +
               labs(title="HPA detected/tested proteins",
-                   subtitle =paste("N = ", nrow(hpa_dat_sum)))
+                   subtitle =paste("N = ", nrow(hpa_dat_sum))) +
+              ylab("Count") + 
+              scale_fill_discrete(name="Number of Proteins Tested") 
 
 supp_fig_4
 
