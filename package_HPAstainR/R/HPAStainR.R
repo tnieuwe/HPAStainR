@@ -82,7 +82,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   scale_genes = TRUE
   
   # Make gene list robust to incongruencies----------
-  # test if comma seperated or non comma seperated
+  # test if comma separated or non comma separated
   
   if (!(str_detect(gene_list, ","))[1]) {
     gene_list <- gsub(pattern = "\\s", replacement = ",", x = gene_list)
