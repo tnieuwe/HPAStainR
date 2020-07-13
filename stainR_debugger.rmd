@@ -1137,3 +1137,22 @@ ggplot() +
   labs(title = "Histogram representing the distribution of stained:tested protein ratio", subtitle = "Dashed line indicates 1st quartile") +
   xlab("stained:tested protein ratio")
 ```
+
+How long it takes to run
+```{r}
+start_time <- Sys.time()
+HPAStainR(gene_list, hpa_dat, cancer_dat)
+end_time <- Sys.time()
+
+end_time - start_time
+
+####
+
+
+start_time <- Sys.time()
+HPAStainR(gene_list, hpa_dat, cancer_dat, cancer_analysis = "both")
+end_time <- Sys.time()
+
+end_time - start_time
+```
+
