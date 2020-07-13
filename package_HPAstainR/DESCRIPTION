@@ -9,6 +9,6 @@ Authors@R: person(given = "Tim",
 Description: This package is built around the HPAStainR function. The purpose of the HPAStainR function is to query the visual staining data in the Human Protein Atlas to return a table of staining ranked cell types. The function also has multiple arguements to personalize to output as well to include cancer data, csv readable names, modify the confidence levels of the results and more. The other functions exist exlcusively to easily acquire the data required to run HPAStainR.
 License: Artistic-2.0
 Encoding: UTF-8
-LazyData: true
-Depends: R (>= 3.1.0), tidyverse, shiny, scales
+LazyData: FALSE
+Depends: R (>= 4.0.2), tidyverse, shiny, scales
 RoxygenNote: 7.1.1
