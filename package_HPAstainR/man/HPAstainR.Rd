@@ -45,7 +45,7 @@ Default is TRUE giving csv names.}
 
 \item{stained_gene_data}{A boolean determining if there is a list of which proteins stained, TRUE is default.}
 
-\item{tested_protein_column}{A boolean dsetermining if there is a column listing which proteins were tested, TRUE is default.}
+\item{tested_protein_column}{A boolean determining if there is a column listing which proteins were tested, TRUE is default.}
 
 \item{percent_or_count}{A character string determining if percent of proteins stained, count of proteins stained, or both are shown
 for high, medium, and low staining. Must be "percent" (default), "count", or "both".}
@@ -60,7 +60,7 @@ Uses a protein/gene list to query Human Protein Atlas (HPA) staining data.
 }
 \section{Details}{
 
-Calculation of the staining score below
+Calculation of the staining score below:
 \deqn{(\frac{h \times 100}{t}) + (\frac{m \times 50}{t}) + (\frac{l \times 25}{t})}
 }
 
