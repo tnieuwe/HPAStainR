@@ -5,10 +5,14 @@ Authors@R: person(given = "Tim",
            family = "Nieuwenhuis",
            role = c("aut", "cre"),
            email = "tnieuwe1@jhmi.edu",
-           comment = c(ORCID = "https://orcid.org/0000-0002-1995-3317"))
+           comment = c(ORCID = "0000-0002-1995-3317"))
 Description: This package is built around the HPAStainR function. The purpose of the HPAStainR function is to query the visual staining data in the Human Protein Atlas to return a table of staining ranked cell types. The function also has multiple arguements to personalize to output as well to include cancer data, csv readable names, modify the confidence levels of the results and more. The other functions exist exlcusively to easily acquire the data required to run HPAStainR.
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: FALSE
 Depends: R (>= 4.0.2), tidyverse, shiny, scales
 RoxygenNote: 7.1.1
+SystemRequirements: 4GB of RAM
+BiocViews: GeneExpression, GeneSetEnrichment
+BugReports: https://github.com/tnieuwe/HPAstainR
+
