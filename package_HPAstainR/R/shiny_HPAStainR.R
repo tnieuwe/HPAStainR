@@ -109,7 +109,7 @@ shinyApp(
         #gene_list = unlist(str_split(input$gene_list), ','),
         hpa_dat = hpa_dat, 
         cancer_dat = cancer_dat,
-        tissue_level = ifelse(input$tissue_level == "Yes", T, F),
+        tissue_level = ifelse(input$tissue_level == "Yes", TRUE, FALSE),
         stringency = input$stringency,
         scale_abundance = as.logical(input$scale_abundance),
         round_to = input$round_to,
@@ -139,7 +139,7 @@ shinyApp(
     output$downloadData <- downloadHandler(
       filename ="HPAstainR_results.csv",
       content = function(file){
-        write.csv(print(n1()), file, row.names = F)
+        write.csv(print(n1()), file, row.names = FALSE)
       }
     )
     
