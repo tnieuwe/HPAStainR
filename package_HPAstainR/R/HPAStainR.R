@@ -28,16 +28,14 @@
 #' @return  A tibble containing the results of HPAStainR.
 #'
 #' @examples 
-#' HPA_out <- HPAStainR(c("PRSS1, "PNLIP", "CELA3A", "PRL"), hpa_dat, cancer_dat, "both", stringency = "high")
-#' 
-#' #Below will give you the results found on the shiny app website
-#' #This examples also uses HPA_data_downloader ouput as an example
-#' 
+#' ## Below will give you the results found on the shiny app website
+#' ## This examples also uses HPA_data_downloader output as an example
 #' HPA_out <- HPAStainR(c("PRSS1, "PNLIP", "CELA3A", "PRL"), downloader_out$hpa_dat, downloader_out$cancer_dat, "both")
-
+#' @import tidyverse
+#' @import scales
+#' @import shiny
 #' @export
-#'
-#'
+
 
 
 
@@ -72,10 +70,10 @@ HPAStainR <- function(gene_list, hpa_dat,
   cancer_analysis <- cancer_analysis[1]
   stringency <- stringency[1]
   ## Easy way to make cancer only work, though inefficient
-  cancer_only <- F
+  cancer_only <- FALSE
   if (cancer_analysis == "cancer") {
     cancer_analysis <- "both"
-    cancer_only <- T
+    cancer_only <- TRUE
   }
   
   ## A holdover from my personal pipeline
@@ -94,7 +92,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   gene_list <- toupper(gene_list)
   p_o_c <- percent_or_count[1]
   
-  if (tissue_level == T) {
+  if (tissue_level == TRUE) {
     cell_o_tiss <- "tissue_cell"
   } else {
     cell_o_tiss <- "Cell.type"
@@ -153,7 +151,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   })
   scaled_for_genes <- rowSums(table(sub_dat[[cell_o_tiss]], sub_dat$Gene.name)) / length(prot_genes)
   ## Scale for only a few genes existing
-  if (scale_abundance == T) {
+  if (scale_abundance == TRUE) {
     ## Get unique tissue counts
     uni_tiss <- sub_dat %>%
       select((!!sym(cell_o_tiss)), Tissue) %>%
@@ -164,9 +162,9 @@ HPAStainR <- function(gene_list, hpa_dat,
     ## New section that fixes counts of different groups
     tiss_cell_percent <- sub_dat %>% select(Gene.name, Cell.type, tissue_cell)
     group_list <- table(tiss_cell_percent[[cell_o_tiss]])
-    unique_counts <- sapply(group_list, function(x) {
+    unique_counts <- vapply(group_list, function(x) {
       ifelse(x / length(prot_genes) > 1, (x / length(prot_genes)), 1)
-    })
+    }, numeric(1))
     cell_type_dat_per <- cell_type_dat_per / unique_counts
   }
   
@@ -280,7 +278,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   ## Change genes in column to only those detected-------------
   
 
-  if (scale_genes == T) {
+  if (scale_genes == TRUE) {
     prot_genes
     tiss_gene_table <- table(sub_dat[[cell_o_tiss]], sub_dat$Gene.name) > 0.5
     ## CANCER
@@ -312,7 +310,7 @@ HPAStainR <- function(gene_list, hpa_dat,
       
       ## Add grouped or split gene option here
         if (cells_in %in% rownames(tiss_gene_table)) {
-        temp_genes <- names(tiss_gene_table[cells_in, ])[tiss_gene_table[cells_in, ] == T]
+        temp_genes <- names(tiss_gene_table[cells_in, ])[tiss_gene_table[cells_in, ] == TRUE]
         gene_col <- c(gene_col, paste0(temp_genes, collapse = ", "))
         gene_count <- c(gene_count, length(temp_genes))
       } else {
@@ -334,16 +332,16 @@ HPAStainR <- function(gene_list, hpa_dat,
   
   ## Tissue level determines if the analysis looks at cell types on a tissue level instead of a general level------
   ## This is ideal as cell types in different tissues, though similiar, have different profiles. 
-  if (tissue_level == T) {
+  if (tissue_level == TRUE) {
     staining_dat <- sub_dat %>% filter(Level != "Not detected")
-    staining_tf_df <- as.matrix.data.frame(table(staining_dat$tissue_cell, staining_dat$Gene.name) > 0, T)
+    staining_tf_df <- as.matrix.data.frame(table(staining_dat$tissue_cell, staining_dat$Gene.name) > 0, TRUE)
     colnames(staining_tf_df) <- colnames(table(staining_dat$tissue_cell, staining_dat$Gene.name))
     staining_tf_df <- as.data.frame(staining_tf_df)
     
     ## CANCER
     if (cancer_analysis == "both" | cancer_analysis == "Only") {
       cancer_staining_dat <- sub_cancer %>% filter(High > 0 | Low > 0 | Medium > 0)
-      cancer_staining_tf_df <- as.matrix.data.frame(table(cancer_staining_dat$Cancer, cancer_staining_dat$Gene.name) > 0, T)
+      cancer_staining_tf_df <- as.matrix.data.frame(table(cancer_staining_dat$Cancer, cancer_staining_dat$Gene.name) > 0, TRUE)
       colnames(cancer_staining_tf_df) <- colnames(table(cancer_staining_dat$Cancer, cancer_staining_dat$Gene.name))
       cancer_staining_tf_df <- as.data.frame(cancer_staining_tf_df)
       ## Put in blank information
@@ -364,14 +362,14 @@ HPAStainR <- function(gene_list, hpa_dat,
     ## Cancer end
   } else {
     staining_dat <- sub_dat %>% filter(Level != "Not detected")
-    staining_tf_df <- as.matrix.data.frame(table(staining_dat$Cell.type, staining_dat$Gene.name) > 0, T)
+    staining_tf_df <- as.matrix.data.frame(table(staining_dat$Cell.type, staining_dat$Gene.name) > 0, TRUE)
     colnames(staining_tf_df) <- colnames(table(staining_dat$Cell.type, staining_dat$Gene.name))
     staining_tf_df <- as.data.frame(staining_tf_df)
     
     ## CANCER
     if (cancer_analysis == "both" | cancer_analysis == "Only") {
       cancer_staining_dat <- sub_cancer %>% filter(High > 0 | Low > 0 | Medium > 0)
-      cancer_staining_tf_df <- as.matrix.data.frame(table(cancer_staining_dat$Cancer, cancer_staining_dat$Gene.name) > 0, T)
+      cancer_staining_tf_df <- as.matrix.data.frame(table(cancer_staining_dat$Cancer, cancer_staining_dat$Gene.name) > 0, TRUE)
       colnames(cancer_staining_tf_df) <- colnames(table(cancer_staining_dat$Cancer, cancer_staining_dat$Gene.name))
       cancer_staining_tf_df <- as.data.frame(cancer_staining_tf_df)
       ## Put in blank information
@@ -395,7 +393,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   ## For loop to replace T F with name
   for (col_n in 1:ncol(staining_tf_df)) {
     gene <- colnames(staining_tf_df)[col_n]
-    staining_tf_df[, col_n] <- ifelse(staining_tf_df[, col_n] == T, gene, "")
+    staining_tf_df[, col_n] <- ifelse(staining_tf_df[, col_n] == TRUE, gene, "")
     
   }
   
@@ -418,7 +416,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   
   stained_list <- gsub(",", ", ", stained_list)
   
-  stained_out <- as.data.frame(stained_list, stringsAsFactors = F) %>% rownames_to_column(var = "cell_type")
+  stained_out <- as.data.frame(stained_list, stringsAsFactors = FALSE) %>% rownames_to_column(var = "cell_type")
   
   cell_type_out <- left_join(cell_type_out, stained_out, by = "cell_type")
   # }
@@ -430,7 +428,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   
   ## Only cancer
   
-  if (cancer_only == T) {
+  if (cancer_only == TRUE) {
     cell_type_out <- cell_type_out %>% filter(cell_type %in% cancer_dat$Cancer)
   }
   
@@ -443,14 +441,14 @@ HPAStainR <- function(gene_list, hpa_dat,
   ## Remove NAs and Testis as we don't use it
   ubi_test <- hpa_dat %>%
     mutate(
-      stained = ifelse(Level != "Not detected", T, F),
+      stained = ifelse(Level != "Not detected", TRUE, FALSE),
       in_list = Gene.name %in% gene_list
     ) %>%
     filter(Tissue != "testis", !is.na(Cell.type), tissue_cell != "N/A - N/A")
   ## Get a list of tested genes
   genes_tested <- table(ubi_test$Gene.name)
   ## Filter down to stained genes
-  ubi_test_filt <- ubi_test %>% filter(stained == T)
+  ubi_test_filt <- ubi_test %>% filter(stained == TRUE)
   ## Make  a table of stained proteins by cell -tisssue
   ubi_table <- table(ubi_test_filt$tissue_cell, ubi_test_filt$Gene.name)
   ## Now just remove non-matching proteins
@@ -484,7 +482,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   if (nrow(quart_hpa) != 0) {
     chi_out <- quart_hpa %>%
       group_by(tissue_cell) %>%
-      summarise(p_val = chisq.test(stained, in_list, simulate.p.value = T)$p.value) %>%
+      summarise(p_val = chisq.test(stained, in_list, simulate.p.value = TRUE)$p.value) %>%
       rename(cell_type = tissue_cell)
     chi_out$p_val_adj <- p.adjust(chi_out$p_val)
   }
@@ -509,19 +507,19 @@ HPAStainR <- function(gene_list, hpa_dat,
       unique()
     
     sub_canc <- sub_canc %>% mutate(
-      stained = ifelse(Not.detected != 0, T, F),
-      in_list = ifelse(Gene.name %in% gene_list, T, F)
+      stained = ifelse(Not.detected != 0, TRUE, FALSE),
+      in_list = ifelse(Gene.name %in% gene_list, TRUE, FALSE)
     ) 
     
     ## Remove NAs and Testis as we don't use it
     ubi_test <- cancer_dat %>% mutate(
-      stained = ifelse(Not.detected != 0, T, F),
-      in_list = ifelse(Gene.name %in% gene_list, T, F)
+      stained = ifelse(Not.detected != 0, TRUE, FALSE),
+      in_list = ifelse(Gene.name %in% gene_list, TRUE, FALSE)
     )
     ## Get a list of tested genes
     genes_tested <- table(ubi_test$Gene.name)
     ## Filter down to stained genes
-    ubi_test_filt <- ubi_test %>% filter(stained == T)
+    ubi_test_filt <- ubi_test %>% filter(stained == TRUE)
     ## Make  a table of stained proteins by cell -tisssue
     ubi_table <- table(ubi_test_filt$Cancer, ubi_test_filt$Gene.name)
     ## Now just remove non-matching proteins
@@ -548,7 +546,7 @@ HPAStainR <- function(gene_list, hpa_dat,
     if (nrow(quart_canc) != 0) {
       chi_out <- quart_canc %>%
         group_by(Cancer) %>%
-        summarise(p_val = chisq.test(stained, in_list, simulate.p.value = T)$p.value) %>%
+        summarise(p_val = chisq.test(stained, in_list, simulate.p.value = TRUE)$p.value) %>%
         rename(cell_type = Cancer)
       
       chi_out$p_val_adj <- p.adjust(chi_out$p_val)
@@ -584,7 +582,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   
   
   ## Change names-----------------
-  if (csv_names == T) {
+  if (csv_names == TRUE) {
     cell_type_out <- cell_type_out %>% select(cell_type,
                                               percent_high_expression = High,
                                               high_expression_count,
@@ -601,7 +599,7 @@ HPAStainR <- function(gene_list, hpa_dat,
     )
   }
   
-  if (csv_names == F) {
+  if (csv_names == FALSE) {
     cell_type_out <- cell_type_out %>% 
       mutate(High = percent(High, acccuracy = 0.1),
              Medium = percent(Medium, accuracy = 0.1),
@@ -637,21 +635,21 @@ HPAStainR <- function(gene_list, hpa_dat,
   }
   
   
-  if (drop_na_row == T) {
+  if (drop_na_row == TRUE) {
     cell_type_out <- cell_type_out %>% drop_na()
   }
   
   ## Simplify stained list drop
-  if (stained_gene_data == F) {
+  if (stained_gene_data == FALSE) {
     cell_type_out <- cell_type_out[, -grep("ected", colnames(cell_type_out))]
   }
-  if (tested_protein_column == F) {
+  if (tested_protein_column == FALSE) {
     cell_type_out <- cell_type_out[, -grep("ested", colnames(cell_type_out))]
   }
   
   ## Final changes
   ## Make adjusted pvalues optional
-  if (adjusted_pvals == F) {
+  if (adjusted_pvals == FALSE) {
     cell_type_out <- cell_type_out[, -grep("dj", colnames(cell_type_out))]
   }
  
