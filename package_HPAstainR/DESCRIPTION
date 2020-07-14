@@ -11,8 +11,9 @@ License: Artistic-2.0
 Encoding: UTF-8
 LazyData: FALSE
 Depends: R (>= 4.0.2), tidyverse, shiny, scales
+Suggests: knitr
 RoxygenNote: 7.1.1
 SystemRequirements: 4GB of RAM
 biocViews: GeneExpression, GeneSetEnrichment
 BugReports: https://github.com/tnieuwe/HPAstainR
-
+VignetteBuilder: knitr
