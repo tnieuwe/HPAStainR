@@ -391,7 +391,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   }
   
   ## For loop to replace T F with name
-  for (col_n in 1:ncol(staining_tf_df)) {
+  for (col_n in seq_len(ncol(staining_tf_df))) {
     gene <- colnames(staining_tf_df)[col_n]
     staining_tf_df[, col_n] <- ifelse(staining_tf_df[, col_n] == TRUE, gene, "")
     
