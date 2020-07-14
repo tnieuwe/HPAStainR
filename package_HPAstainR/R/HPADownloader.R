@@ -13,9 +13,9 @@
 #'
 #' @examples 
 #' HPA_data <- HPA_data_downloader()
-#' #Access normal data
+#' ## Access normal data
 #' HPA_data$hpa_dat
-#' #Access cancer data
+#' ## Access cancer data
 #' HPA_data$cancer_dat
 #'
 #'
@@ -31,7 +31,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
   
   ## First section runs if files are already downloaed to save time
   if ((tissue_type ==  "both" | tissue_type == "normal") & file.exists(paste0(save_location, "normal_tissue.tsv.zip"))) {
-    # Normal tissue
+    ## Normal tissue
     hpa_dat <- read.table(unzip(paste0(save_location, "normal_tissue.tsv.zip")),
                           header = T, sep = "\t", stringsAsFactors = F)
     
