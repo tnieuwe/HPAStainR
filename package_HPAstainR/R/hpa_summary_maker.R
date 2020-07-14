@@ -12,13 +12,9 @@
 #' @return  A dataframe summarizing the amount of proteins tested to detected, used for the shiny app.
 #'
 #' @examples 
-#' 
+#' ## Generate the summarized HPA file
 #' hpa_summary <- hpa_summary_maker(hpa_dat)
-#' 
-#'
-#'
-#'
-#'@export 
+#' @export 
 #'
 #'
 
