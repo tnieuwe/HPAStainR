@@ -29,7 +29,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
                                 save_location = ""){
   tissue_type <- tissue_type[1]
   
-  #First section runs if files are already downloaed to save time
+  ## First section runs if files are already downloaed to save time
   if ((tissue_type ==  "both" | tissue_type == "normal") & file.exists(paste0(save_location, "normal_tissue.tsv.zip"))) {
     # Normal tissue
     hpa_dat <- read.table(unzip(paste0(save_location, "normal_tissue.tsv.zip")),
@@ -41,7 +41,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
   }
   
   if ((tissue_type == "both" | tissue_type == "cancer") & file.exists(paste0(save_location, "pathology.tsv.zip"))) {
-    # Cancer tissue
+    ## Cancer tissue
     
     cancer_dat <- read.table(unzip(paste0(save_location, "pathology.tsv.zip")),
                              header = T, sep = "\t", stringsAsFactors = F)
@@ -60,7 +60,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
   
   if (save_file == F) {
     if (tissue_type == "both" | tissue_type == "normal") {
-      # Normal tissue
+      ## Normal tissue
       temp <- tempfile()
       download.file("https://www.proteinatlas.org/download/normal_tissue.tsv.zip", temp)
       hpa_dat <- read.table(unz(temp, "normal_tissue.tsv"), header = T, sep = "\t", stringsAsFactors = F)
@@ -71,7 +71,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
     }
     
     if (tissue_type == "both" | tissue_type == "cancer") {
-      # Cancer tissue
+      ## Cancer tissue
       temp <- tempfile()
       download.file("https://www.proteinatlas.org/download/pathology.tsv.zip", temp)
       cancer_dat <- read.table(unz(temp, "pathology.tsv"), header = T, sep = "\t", stringsAsFactors = F)
@@ -89,7 +89,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
     }
   if (save_file == T) {
       if (tissue_type == "both" | tissue_type == "normal") {
-        # Normal tissue
+        ## Normal tissue
         
         download.file("https://www.proteinatlas.org/download/normal_tissue.tsv.zip",
                       destfile = paste0(save_location,"normal_tissue.tsv.zip"))
@@ -102,7 +102,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
       }
       
       if (tissue_type == "both" | tissue_type == "cancer") {
-        # Cancer tissue
+        ## Cancer tissue
        
         download.file("https://www.proteinatlas.org/download/pathology.tsv.zip",
                       destfile = paste0(save_location,"pathology.tsv.zip"))
