@@ -29,7 +29,7 @@
 #'
 #' @examples
 #' ## Below will give you the results found on the shiny app website
-#' ## This examples also uses HPA_data_downloader output as an example
+#' ## This example also uses HPA_data_downloader output as an example
 #' HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"), downloader_out$hpa_dat, downloader_out$cancer_dat, "both")
 #' @import tidyverse
 #' @import scales
