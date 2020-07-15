@@ -480,7 +480,9 @@ HPAStainR <- function(gene_list, hpa_dat,
   if (nrow(quart_hpa) != 0) {
     chi_out <- quart_hpa %>%
       group_by(tissue_cell) %>%
-      summarise(p_val = chisq.test(stained, in_list, simulate.p.value = TRUE)$p.value) %>%
+      summarise(p_val = chisq.test(stained,
+                                   in_list,
+                                   simulate.p.value = TRUE)$p.value) %>%
       rename(cell_type = tissue_cell)
     chi_out$p_val_adj <- p.adjust(chi_out$p_val)
   }
@@ -544,7 +546,9 @@ HPAStainR <- function(gene_list, hpa_dat,
     if (nrow(quart_canc) != 0) {
       chi_out <- quart_canc %>%
         group_by(Cancer) %>%
-        summarise(p_val = chisq.test(stained, in_list, simulate.p.value = TRUE)$p.value) %>%
+        summarise(p_val = chisq.test(stained,
+                                     in_list,
+                                     simulate.p.value = TRUE)$p.value) %>%
         rename(cell_type = Cancer)
 
       chi_out$p_val_adj <- p.adjust(chi_out$p_val)
@@ -555,9 +559,11 @@ HPAStainR <- function(gene_list, hpa_dat,
     if (cancer_analysis == "both") {
       chi_out <- bind_rows(chi_out_tiss, chi_out)
       ## For some reason this left_join duplicates rows, and I have no idea why, but unique fixes it
-      cell_type_out <- left_join(cell_type_out, chi_out, by = "cell_type") %>% unique()
+      cell_type_out <- left_join(cell_type_out, chi_out, by = "cell_type") %>%
+        unique()
     } else {
-      cell_type_out <- left_join(cell_type_out, chi_out, by = "cell_type") %>% unique()
+      cell_type_out <- left_join(cell_type_out, chi_out, by = "cell_type") %>%
+        unique()
     }
   }
 
