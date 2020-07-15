@@ -24,5 +24,4 @@ Runs HPAStainR as a the shiny app found at https://32tim32.shinyapps.io/HPAStain
 \examples{
 
 shiny_HPAStainR(download_out$hpa_dat, download_out$cancer_dat, summary_out)
-
 }

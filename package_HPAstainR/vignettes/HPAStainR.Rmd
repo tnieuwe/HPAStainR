@@ -4,7 +4,7 @@ author: "Tim O. Nieuwenhuis"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{HPAStainR Package Vignette}
+  %\VignetteIndexEntry{HPAStainR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -32,7 +32,7 @@ The first step required to run HPAStainR is downloading HPA's normal tissue stai
 ```{r, download_data}
 library(HPAStainR)
 
-HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = T)
+HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = TRUE)
 ```
 
 The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for `save location` this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called `hpa_dat` and `cancer_dat` which hold the normal tissue and cancer tissue data respectively. If the code is ran again it will use the previously saved files and not redownload them. 
@@ -44,7 +44,7 @@ knitr::kable(head(HPA_data$hpa_dat, 10))
 
 ### Head of cancer tissue (columns 1-7)
 ```{r, echo=FALSE, results='asis', cancer_data}
-knitr::kable(head(HPA_data$cancer_dat[,1:7], 10))
+knitr::kable(head(HPA_data$cancer_dat[,seq_len(7)], 10))
 ```
 
 
