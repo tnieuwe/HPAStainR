@@ -41,7 +41,7 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
           checkboxInput("adjusted_pvals", "Include adjusted P-values", TRUE),
           #
           numericInput("round_to", "Round values to:", value = 2, min = 2, max = 5),
-          checkboxInput("csv_names", "CSV friendly column name format", F),
+          checkboxInput("csv_names", "CSV friendly column name format", FALSE),
           checkboxInput("drop_na_rows_in", "Remove rows with no staining data", FALSE),
 
           strong(textOutput("gene_list")),

@@ -6,7 +6,7 @@
 \usage{
 HPA_data_downloader(
   tissue_type = c("both", "normal", "cancer"),
-  save_file = T,
+  save_file = TRUE,
   save_location = ""
 )
 }
@@ -34,8 +34,6 @@ HPA_data$hpa_dat
 HPA_data$cancer_dat
 
 
-
+## Download only the normal tissue data
 HPA_normal_data <- HPA_data_downloader("normal")
-
-
 }
