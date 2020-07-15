@@ -58,7 +58,7 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
     return(all_dat)
   }
 
-  if (save_file == F) {
+  if (save_file == FALSE) {
     if (tissue_type == "both" | tissue_type == "normal") {
       ## Normal tissue
       temp <- tempfile()
