@@ -172,7 +172,7 @@ HPAstainR <- function(gene_list, hpa_dat,
     group_list <- table(tiss_cell_percent[[cell_o_tiss]])
     unique_counts <- vapply(group_list, function(x) {
       ifelse(x / length(prot_genes) > 1, (x / length(prot_genes)), 1)
-    })
+    }, numeric(1))
     cell_type_dat_per <- cell_type_dat_per / unique_counts
   }
 
