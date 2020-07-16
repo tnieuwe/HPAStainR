@@ -31,17 +31,17 @@
 #' @examples
 #' ## Below will give you the results found on the shiny app website
 #' ## This example also uses HPA_data_downloader output as an example
-#' HPA_data <- HPA_data_downloader()
+#' HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
 #' HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"),
 #'    HPA_data$hpa_dat,
 #'    HPA_data$cancer_dat,
 #'    both")
-#' @import dplyr
-#' @import scales
+#' @import dplyr 
 #' @import shiny
-#' @import stringr
 #' @import tibble
 #' @import tidyr
+#' @importFrom scales percent
+#' @importFrom stringr str_detect str_split str_trim
 #' @importFrom stats chisq.test p.adjust quantile
 #' @export
 
@@ -479,7 +479,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   ## Not 2 levels is used to remove cell types that fail to have two levels in the gene list
   not_2_levels <- quart_hpa %>%
     group_by(tissue_cell) %>%
-    summarize(stain_mean = mean(stained), list_mean = mean(in_list)) %>%
+    summarise(stain_mean = mean(stained), list_mean = mean(in_list)) %>%
     filter(stain_mean == 1 | stain_mean == 0 | list_mean == 1 | list_mean == 0)
 
   ## filter down to top specificity genes
@@ -546,7 +546,7 @@ HPAStainR <- function(gene_list, hpa_dat,
     not_2_levels <- quart_canc %>%
       filter(!is.na(stained)) %>%
       group_by(Cancer) %>%
-      summarize(stain_mean = mean(stained), list_mean = mean(in_list)) %>%
+      summarise(stain_mean = mean(stained), list_mean = mean(in_list)) %>%
       filter(stain_mean == 1 | stain_mean == 0 | list_mean == 1 | list_mean == 0)
 
     ## filter down to top specificity genes
