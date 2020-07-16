@@ -7,14 +7,7 @@
 hpa_summary_maker(hpa_dat)
 }
 \arguments{
-\item{tissue_type}{A character string that determines which HPA data you want to download from the website. Has to be
-"both" (default), "normal", or "cancer".}
-
-\item{save_file}{A boolean determining if you want the HPA data downloaded permanently or temporarily. Default is TRUE,
-meaning the file will be saved in the given "save_location", default being the current working directory.}
-
-\item{save_location}{A character string indicating where you want the files to be saved if you are saving them.
-If the file(s) already exists in that location, those will be loaded instead of re-downloading the files.}
+\item{hpa_dat}{The dataframe of normal tissue data downloaded by HPA_data_downloader()}
 }
 \value{
 A dataframe summarizing the amount of proteins tested to detected, used for the shiny app.
@@ -23,6 +16,8 @@ A dataframe summarizing the amount of proteins tested to detected, used for the 
 Used to generate a summary file used in the second tab of the Shiny app version of HPAStainR
 }
 \examples{
+## Load in data from downloader
+HPA_data <- HPA_data_downloader()
 ## Generate the summarized HPA file
-hpa_summary <- hpa_summary_maker(hpa_dat)
+hpa_summary <- hpa_summary_maker(HPA_data$hpa_dat)
 }

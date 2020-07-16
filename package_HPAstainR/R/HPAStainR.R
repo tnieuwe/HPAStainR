@@ -19,6 +19,7 @@
 #' @param percent_or_count A character string determining if percent of proteins stained, count of proteins stained, or both are shown
 #' for high, medium, and low staining. Must be "percent" (default), "count", or "both".
 #' @param drop_na_row A boolean that determines if cell types with no proteins tested are kept or dropped, default is FALSE.
+#' @param adjusted_pvals A boolean indicating if you want the p-values corrected for multiple testing. Default is TRUE.
 #'
 #' @section Details:
 #' Calculation of the staining score below:
@@ -30,10 +31,18 @@
 #' @examples
 #' ## Below will give you the results found on the shiny app website
 #' ## This example also uses HPA_data_downloader output as an example
-#' HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"), downloader_out$hpa_dat, downloader_out$cancer_dat, "both")
-#' @import tidyverse
+#' HPA_data <- HPA_data_downloader()
+#' HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"),
+#'    HPA_data$hpa_dat,
+#'    HPA_data$cancer_dat,
+#'    both")
+#' @import dplyr
 #' @import scales
 #' @import shiny
+#' @import stringr
+#' @import tibble
+#' @import tidyr
+#' @importFrom stats chisq.test p.adjust quantile
 #' @export
 
 
@@ -252,7 +261,7 @@ HPAStainR <- function(gene_list, hpa_dat,
   ## Below is where we generate the final tibble-----------------
   cell_type_out <- as_tibble(cell_type_dat_per, rownames = "cell_type") %>% # 1. Make the data a tibble with rownames as cell_type
     mutate_if(is.numeric, round, round_to) %>% # 2. Round all numeric columns according to arguement
-    dplyr::select(cell_type, High, Medium, Low, `Not detected`) %>% # 3. Select columns
+    select(cell_type, High, Medium, Low, `Not detected`) %>% # 3. Select columns
     mutate(
       staining_score = (High * 100) + (Medium * 50) + (Low * 25), # 4. Generate the staining score
       num_genes = sum(gene_list %in% sub_dat$Gene.name)

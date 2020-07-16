@@ -21,6 +21,7 @@
 #'
 #' ## Download only the normal tissue data
 #' HPA_normal_data <- HPA_data_downloader("normal")
+#' @importFrom utils download.file read.table unzip
 #' @export
 HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
                                 save_file = TRUE,

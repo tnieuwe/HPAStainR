@@ -51,6 +51,8 @@ Default is TRUE giving csv names.}
 for high, medium, and low staining. Must be "percent" (default), "count", or "both".}
 
 \item{drop_na_row}{A boolean that determines if cell types with no proteins tested are kept or dropped, default is FALSE.}
+
+\item{adjusted_pvals}{A boolean indicating if you want the p-values corrected for multiple testing. Default is TRUE.}
 }
 \value{
 A tibble containing the results of HPAStainR.
@@ -64,11 +66,3 @@ Calculation of the staining score below:
 \deqn{(\frac{h \times 100}{t}) + (\frac{m \times 50}{t}) + (\frac{l \times 25}{t})}
 }
 
-\examples{
-HPA_out <- HPAStainR(c("PRSS1, "PNLIP", "CELA3A", "PRL"), hpa_dat, cancer_dat, "both", stringency = "high")
-
-#Below will give you the results found on the shiny app website
-#This examples also uses HPA_data_downloader ouput as an example
-
-HPA_out <- HPAStainR(c("PRSS1, "PNLIP", "CELA3A", "PRL"), downloader_out$hpa_dat, downloader_out$cancer_dat, "both")
-}

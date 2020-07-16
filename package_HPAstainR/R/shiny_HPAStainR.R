@@ -15,6 +15,7 @@
 #' @examples
 #'
 #' shiny_HPAStainR(download_out$hpa_dat, download_out$cancer_dat, summary_out)
+#' @importFrom utils write.csv
 #' @export
 
 
@@ -54,7 +55,7 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
           br(),
           p(
             "    HPAStain.R is limited to the data which is available on the HPA website, as a result, not all tissues or cell types are stained or characterized for your proteins of interest are in the database.",
-            "When data is lacking on a gene it will not be included in the column “tested proteins”, and when tissue data is missing it is simply left blank."
+            "When data is lacking on a gene it will not be included in the column `tested proteins`, and when tissue data is missing it is simply left blank."
           ),
           br(),
           "The data used is from the Human Protein Atlas.",
@@ -62,11 +63,11 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
                    tnieuwe1@jhmi.edu"
         ),
         # Output table
-        # mainPanel(DT::dataTableOutput("table"))
+        # mainPanel(dataTableOutput("table"))
         mainPanel(
           tabsetPanel(
-            tabPanel("HPAStainR Output", DT::dataTableOutput("table")),
-            tabPanel("Summary of Proteins for Cell Types", DT::dataTableOutput("summ_tab"))
+            tabPanel("HPAStainR Output", dataTableOutput("table")),
+            tabPanel("Summary of Proteins for Cell Types", dataTableOutput("summ_tab"))
           )
         )
       )
@@ -137,10 +138,10 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
 
 
 
-      output$table <- DT::renderDataTable(print(n1()))
+      output$table <- renderDataTable(print(n1()))
 
 
-      output$summ_tab <- DT::renderDataTable(print(cell_type_data))
+      output$summ_tab <- renderDataTable(print(cell_type_data))
 
 
       output$downloadData <- downloadHandler(
