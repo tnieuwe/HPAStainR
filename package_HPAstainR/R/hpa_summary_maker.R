@@ -11,6 +11,7 @@
 #' HPA_data <- HPA_data_downloader()
 #' ## Generate the summarized HPA file
 #' hpa_summary <- hpa_summary_maker(HPA_data$hpa_dat)
+#' @importFrom dplyr distinct n
 #' @export
 #'
 #'
