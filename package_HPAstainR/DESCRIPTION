@@ -10,8 +10,9 @@ Description: This package is built around the HPAStainR function. The purpose of
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: FALSE
-Depends: R (>= 4.0.2), tidyverse, shiny, scales
-Suggests: knitr
+Depends: R (>= 4.0.0), dplyr, shiny, scales, stringr, tibble, tidyr
+Imports: utils, stats
+Suggests: knitr, qpdf
 RoxygenNote: 7.1.1
 SystemRequirements: 4GB of RAM
 biocViews: GeneExpression, GeneSetEnrichment
