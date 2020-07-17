@@ -19,7 +19,7 @@ There is also a brief [vignette](https://htmlpreview.github.io/?https://github.c
 
 ### Prerequisites
 
-The R packages `tidyverse`, `shiny`, and `scales` are required for HPAStainR
+The R packages `shiny`, `dplyr`, `stringr`, `tibble`, `tidyr`, and `scales` are required for HPAStainR
 
 The datasets required are below, but HPAStainR package has a function, `HPA_data_downloader()` that can download them for you either permanently or temporarily (via the `save_file` argument):
 
@@ -32,9 +32,11 @@ Cancer Tissue: https://www.proteinatlas.org/download/pathology.tsv.zip
 ## Built With
 
 * [Shiny](https://shiny.rstudio.com/) - For the shinyapp UI
-* [Tidyverse](https://www.tidyverse.org/) - Data manipulation
-* [Scales](https://www.rdocumentation.org/packages/scales/versions/0.4.1) - Visualizations 
-
+* [dplyr](https://dplyr.tidyverse.org/) - Data.frame manipulation
+* [stringr](https://stringr.tidyverse.org/) - String manipulation
+* [tibble](https://tibble.tidyverse.org/) - For data.frame replacements
+* [tidyr](https://tidyr.tidyverse.org/) - For creating tidy data
+* [Scales](https://www.rdocumentation.org/packages/scales/versions/0.4.1) - Generating percents
 
 ## Authors
 
@@ -45,6 +47,7 @@ Cancer Tissue: https://www.proteinatlas.org/download/pathology.tsv.zip
 ## Acknowledgments
 
 * Thank you Stephanie Yang for helpful comments - [syang93](https://github.com/syyang93/)
+* Thank you Matt McCall and Zach Brehm for reviewing the code - [mccallm](https://github.com/mccallm) & [zachbrehm](https://github.com/zachbrehm)
 * HPA for data availability and data structure
 * PurpleBooth for the README template - [PurpleBooth](https://gist.github.com/PurpleBooth/)
 * Anyone else who has tested this tool
