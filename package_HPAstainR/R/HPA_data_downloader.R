@@ -12,7 +12,7 @@
 #' @return  List of dataframes or dataframe depending on tissue_type arguement. If tissue_type == "both" it will be a list of dataframes.
 #'
 #' @examples
-#' HPA_data <- HPA_data_downloader()
+#' HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
 #' ## Access normal data
 #' HPA_data$hpa_dat
 #' ## Access cancer data
@@ -20,7 +20,7 @@
 #'
 #'
 #' ## Download only the normal tissue data
-#' HPA_normal_data <- HPA_data_downloader("normal")
+#' HPA_normal_data <- HPA_data_downloader("normal" save_file = FALSE)
 #' @importFrom utils download.file read.table unzip
 #' @export
 HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
