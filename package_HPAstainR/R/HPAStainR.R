@@ -33,9 +33,9 @@
 #' ## This example also uses HPA_data_downloader output as an example
 #' HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
 #' HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"),
-#'    HPA_data$hpa_dat,
-#'    HPA_data$cancer_dat,
-#'    both")
+#'  HPA_data$hpa_dat,
+#'  HPA_data$cancer_dat,
+#'  "both")
 #' @import dplyr 
 #' @import shiny
 #' @import tibble
