@@ -27,7 +27,7 @@ List of dataframes or dataframe depending on tissue_type arguement. If tissue_ty
 Used to download required data for HPAStainR
 }
 \examples{
-HPA_data <- HPA_data_downloader()
+HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
 ## Access normal data
 HPA_data$hpa_dat
 ## Access cancer data
