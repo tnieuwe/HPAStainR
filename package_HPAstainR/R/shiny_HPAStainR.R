@@ -13,8 +13,12 @@
 #' @return  A locally ran shiny app
 #'
 #' @examples
-#'
-#' shiny_HPAStainR(download_out$hpa_dat, download_out$cancer_dat, summary_out)
+#' ## Load in data from downloader
+#' HPA_data <- HPA_data_downloader(save_file = FALSE)
+#' ## Generate the summarized HPA file
+#' hpa_summary <- HPA_summary_maker(HPA_data$hpa_dat)
+#' ## Run with summary, commented out so example doesn't run indefinitely
+#' ## shiny_HPAStainR(HPA_data$hpa_dat, HPA_data$cancer_dat, hpa_summary)
 #' @importFrom utils write.csv
 #' @export
 
