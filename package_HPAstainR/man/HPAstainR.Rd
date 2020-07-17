@@ -66,3 +66,12 @@ Calculation of the staining score below:
 \deqn{(\frac{h \times 100}{t}) + (\frac{m \times 50}{t}) + (\frac{l \times 25}{t})}
 }
 
+\examples{
+## Below will give you the results found on the shiny app website
+## This example also uses HPA_data_downloader output as an example
+HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
+HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"),
+ HPA_data$hpa_dat,
+ HPA_data$cancer_dat,
+ "both")
+}
