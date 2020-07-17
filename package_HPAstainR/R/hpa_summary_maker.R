@@ -8,7 +8,7 @@
 #'
 #' @examples
 #' ## Load in data from downloader
-#' HPA_data <- HPA_data_downloader(save_file = F)
+#' HPA_data <- HPA_data_downloader(save_file = FALSE)
 #' ## Generate the summarized HPA file
 #' hpa_summary <- HPA_summary_maker(HPA_data$hpa_dat)
 #' @importFrom dplyr distinct n
