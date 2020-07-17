@@ -1,4 +1,4 @@
-#' @title hpa_summary_maker
+#' @title HPA_summary_maker
 #'
 #' @description Used to generate a summary file used in the second tab of the Shiny app version of HPAStainR
 #'
@@ -8,16 +8,16 @@
 #'
 #' @examples
 #' ## Load in data from downloader
-#' HPA_data <- HPA_data_downloader()
+#' HPA_data <- HPA_data_downloader(save_file = F)
 #' ## Generate the summarized HPA file
-#' hpa_summary <- hpa_summary_maker(HPA_data$hpa_dat)
+#' hpa_summary <- HPA_summary_maker(HPA_data$hpa_dat)
 #' @importFrom dplyr distinct n
 #' @export
 #'
 #'
 
 
-hpa_summary_maker <- function(hpa_dat) {
+HPA_summary_maker <- function(hpa_dat) {
   hpa_dat_new <- hpa_dat %>%
     mutate(
       Tissue = gsub("[[:digit:]]+", "", Tissue),
