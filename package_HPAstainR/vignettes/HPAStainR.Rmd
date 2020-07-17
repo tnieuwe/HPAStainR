@@ -101,7 +101,7 @@ Another way to use HPAStainR is as a [Shiny app](https://32tim32.shinyapps.io/HP
 If you want the tab from the online Shiny that gives you the stained : tested ratio of proteins, make sure to run the below code and insert the resulting object in the third argument (`cell_type_data`) of shiny_HPAStainR
 
 ```{r, summarydata}
-hpa_summary <- hpa_summary_maker(hpa_dat = HPA_data$hpa_dat)
+hpa_summary <- HPA_summary_maker(hpa_dat = HPA_data$hpa_dat)
 ```
 
 ## Run the Shiny app
