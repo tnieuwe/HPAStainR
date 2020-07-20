@@ -1,13 +1,18 @@
 #' @title shiny_HPAStainR
 #'
-#' @description Runs HPAStainR as a the shiny app found at https://32tim32.shinyapps.io/HPAStainR/
+#' @description Runs HPAStainR as a the shiny app found at
+#'  https://32tim32.shinyapps.io/HPAStainR/
 #'
-#' @param hpa_dat A required dataframe that has the normal tissue dataframe (see HPA_data_downloader).
-#' )
-#' @param cancer_dat A required dataframe that has the cancer tissue dataframe (see HPA_data_downloader).
+#' @param hpa_dat A required dataframe that has the normal tissue dataframe
+#'  (see HPA_data_downloader).
+#' 
+#' @param cancer_dat A required dataframe that has the cancer tissue dataframe
+#'  (see HPA_data_downloader).
 #'
-#' @param cell_type_data An optional dataframe that comes out of the hpa_summary_maker function, only needed
-#' if you want the second tab of HPAStainR, which shows the ratio of tested proteins to stained proteins, to be functional.
+#' @param cell_type_data An optional dataframe that comes out of the
+#'  hpa_summary_maker function, only needed if you want the second tab of
+#'  HPAStainR, which shows the ratio of tested proteins to stained proteins,
+#'  to be functional.
 #'
 #'
 #' @return  A locally ran shiny app
@@ -86,10 +91,6 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
 
 
 
-      # #load Data
-      # hpa_dat <- read.table("normal_tissue.tsv", sep = '\t', header = TRUE, stringsAsFactors = F)
-      # cancer_dat <- read.table("pathology.tsv", sep = '\t', header = TRUE, stringsAsFactors = F)
-      # cell_type_data <- read.csv("hpa_cell_type_protein_summary_pub.csv", stringsAsFactors = F)
       # Rename cell type data file
 
       if (is.null(cell_type_data)) {

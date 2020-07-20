@@ -10,7 +10,8 @@ shiny_HPAStainR(hpa_dat, cancer_dat, cell_type_data = NULL)
 \item{hpa_dat}{A required dataframe that has the normal tissue dataframe (see HPA_data_downloader).
 )}
 
-\item{cancer_dat}{A required dataframe that has the cancer tissue dataframe (see HPA_data_downloader).}
+\item{cancer_dat}{A required dataframe that has the cancer tissue dataframe
+(see HPA_data_downloader).}
 
 \item{cell_type_data}{An optional dataframe that comes out of the hpa_summary_maker function, only needed
 if you want the second tab of HPAStainR, which shows the ratio of tested proteins to stained proteins, to be functional.}

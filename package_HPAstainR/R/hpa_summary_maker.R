@@ -1,10 +1,13 @@
 #' @title HPA_summary_maker
 #'
-#' @description Used to generate a summary file used in the second tab of the Shiny app version of HPAStainR
+#' @description Used to generate a summary file used in the second tab of the
+#'  Shiny app version of HPAStainR
 #'
-#' @param hpa_dat The dataframe of normal tissue data downloaded by HPA_data_downloader()
+#' @param hpa_dat The dataframe of normal tissue data downloaded by
+#'  HPA_data_downloader()
 #'
-#' @return  A dataframe summarizing the amount of proteins tested to detected, used for the shiny app.
+#' @return  A dataframe summarizing the amount of proteins tested to detected,
+#'  used for the shiny app.
 #'
 #' @examples
 #' ## Load in data from downloader
