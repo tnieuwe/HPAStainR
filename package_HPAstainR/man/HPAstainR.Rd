@@ -22,48 +22,62 @@ HPAStainR(
 )
 }
 \arguments{
-\item{gene_list}{A list of proteins or genes that you want to query the HPA staining data with.}
+\item{gene_list}{A list of proteins or genes that you want to query the HPA
+staining data with.}
 
-\item{hpa_dat}{The data frame of normal HPA staining data data, required to run HPAStainR.}
+\item{hpa_dat}{The data frame of normal HPA staining data data, required to
+run HPAStainR.}
 
-\item{cancer_dat}{The data frame of pathologic HPA staining data, required to run HPAStainr.}
+\item{cancer_dat}{The data frame of pathologic HPA staining data, required
+to run HPAStainr.}
 
-\item{cancer_analysis}{A character string indicating inclusion of cancer data in the result, must be one of "normal" (default),
-"cancer", or "both".}
+\item{cancer_analysis}{A character string indicating inclusion of cancer data
+in the result, must be one of "normal" (default), "cancer", or "both".}
 
-\item{tissue_level}{A boolean that determines whether tissue level data for the cell types are included. Default is TRUE}
+\item{tissue_level}{A boolean that determines whether tissue level data for
+the cell types are included. Default is TRUE}
 
-\item{stringency}{A character string indicating how stringent the confidence level of the staining findings have to be. Must be
-"normal" (default), "high", or "low".}
+\item{stringency}{A character string indicating how stringent the confidence
+level of the staining findings have to be. Must be "normal" (default),
+"high", or "low".}
 
-\item{scale_abundance}{A boolean that determines whether you scale Staining Score based on the size of the gene list. Default is TRUE}
+\item{scale_abundance}{A boolean that determines whether you scale Staining
+Score based on the size of the gene list. Default is TRUE.}
 
-\item{round_to}{A numeric that determines how many decimals in numeric outputs are desired. Default 2.}
+\item{round_to}{A numeric that determines how many decimals in numeric
+outputs are desired. Default 2.}
 
-\item{csv_names}{A Boolean determining if you want names suited for a csv file/pipeline, or for presentation.
-Default is TRUE giving csv names.}
+\item{csv_names}{A Boolean determining if you want names suited for a csv
+file/pipeline, or for presentation. Default is TRUE giving csv names.}
 
-\item{stained_gene_data}{A boolean determining if there is a list of which proteins stained, TRUE is default.}
+\item{stained_gene_data}{A boolean determining if there is a list of which
+proteins stained, TRUE is default.}
 
-\item{tested_protein_column}{A boolean determining if there is a column listing which proteins were tested, TRUE is default.}
+\item{tested_protein_column}{A boolean determining if there is a column
+listing which proteins were tested, TRUE is default.}
 
-\item{percent_or_count}{A character string determining if percent of proteins stained, count of proteins stained, or both are shown
-for high, medium, and low staining. Must be "percent" (default), "count", or "both".}
+\item{percent_or_count}{A character string determining if percent of proteins
+stained, count of proteins stained, or both are shown for high, medium, and
+low staining. Must be "percent" (default), "count", or "both".}
 
-\item{drop_na_row}{A boolean that determines if cell types with no proteins tested are kept or dropped, default is FALSE.}
+\item{drop_na_row}{A boolean that determines if cell types with no proteins
+tested are kept or dropped, default is FALSE.}
 
-\item{adjusted_pvals}{A boolean indicating if you want the p-values corrected for multiple testing. Default is TRUE.}
+\item{adjusted_pvals}{A boolean indicating if you want the p-values corrected
+for multiple testing. Default is TRUE.}
 }
 \value{
 A tibble containing the results of HPAStainR.
 }
 \description{
-Uses a protein/gene list to query Human Protein Atlas (HPA) staining data.
+Uses a protein/gene list to query Human Protein Atlas (HPA)
+ staining data.
 }
 \section{Details}{
 
 Calculation of the staining score below:
-\deqn{(\frac{h \times 100}{t}) + (\frac{m \times 50}{t}) + (\frac{l \times 25}{t})}
+\deqn{(\frac{h \times 100}{t}) + (\frac{m \times 50}{t}) +
+ (\frac{l \times 25}{t})}
 }
 
 \examples{

@@ -7,13 +7,16 @@
 HPA_summary_maker(hpa_dat)
 }
 \arguments{
-\item{hpa_dat}{The dataframe of normal tissue data downloaded by HPA_data_downloader()}
+\item{hpa_dat}{The dataframe of normal tissue data downloaded by
+HPA_data_downloader()}
 }
 \value{
-A dataframe summarizing the amount of proteins tested to detected, used for the shiny app.
+A dataframe summarizing the amount of proteins tested to detected,
+ used for the shiny app.
 }
 \description{
-Used to generate a summary file used in the second tab of the Shiny app version of HPAStainR
+Used to generate a summary file used in the second tab of the
+ Shiny app version of HPAStainR
 }
 \examples{
 ## Load in data from downloader

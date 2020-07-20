@@ -11,17 +11,21 @@ HPA_data_downloader(
 )
 }
 \arguments{
-\item{tissue_type}{A character string that determines which HPA data you want to download from the website. Has to be
-"both" (default), "normal", or "cancer".}
+\item{tissue_type}{A character string that determines which HPA data you
+want to download from the website. Has to be both" (default), "normal", 
+or "cancer".}
 
-\item{save_file}{A boolean determining if you want the HPA data downloaded permanently or temporarily. Default is TRUE,
-meaning the file will be saved in the given "save_location", default being the current working directory.}
+\item{save_file}{A boolean determining if you want the HPA data downloaded
+permanently or temporarily. Default is TRUE, meaning the file will be saved
+ in the given "save_location", default being the current working directory.}
 
-\item{save_location}{A character string indicating where you want the files to be saved if you are saving them.
-If the file(s) already exists in that location, those will be loaded instead of redownloading the files.}
+\item{save_location}{A character string indicating where you want the files
+to be saved if you are saving them. If the file(s) already exists in that
+location, those will be loaded instead of redownloading the files.}
 }
 \value{
-List of dataframes or dataframe depending on tissue_type arguement. If tissue_type == "both" it will be a list of dataframes.
+List of dataframes or dataframe depending on tissue_type arguement.
+ If tissue_type == "both" it will be a list of dataframes.
 }
 \description{
 Used to download required data for HPAStainR
