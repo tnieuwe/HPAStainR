@@ -32,7 +32,7 @@ The first step required to run HPAStainR is downloading HPA's normal tissue stai
 ```{r, download_data}
 library(HPAStainR)
 
-HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = TRUE)
+HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
 ```
 
 The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for `save location` this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called `hpa_dat` and `cancer_dat` which hold the normal tissue and cancer tissue data respectively. If the code is ran again it will use the previously saved files and not redownload them. 
