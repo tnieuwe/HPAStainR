@@ -78,6 +78,7 @@ HPAStainR <- function(gene_list, hpa_dat,
                       adjusted_pvals = TRUE) {
 
   ## Catch issues
+  cancer_analysis <- cancer_analysis[1]
   if (cancer_analysis == "normal" | cancer_analysis == "both") {
     if (!is.data.frame(hpa_dat)) {
       stop("Are you sure hpa_dat is a dataframe? Download through HPADownloader if you're having issues")
@@ -90,7 +91,6 @@ HPAStainR <- function(gene_list, hpa_dat,
     }
   }
   ## In case no one select an option this will pick the default
-  cancer_analysis <- cancer_analysis[1]
   stringency <- stringency[1]
   ## Easy way to make cancer only work, though inefficient
   cancer_only <- FALSE
