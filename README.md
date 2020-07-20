@@ -11,6 +11,7 @@ HPAStainR in its current form is a online Shiny app and R package. The package i
 Run the below R code to install the package using the `devtools` library.
 
 `devtools::install_github('32tim32/stainR/package_HPAstainR')`
+(stainR was the previous name)
 
 Another way to use it is go to my shiny app website posted here and above:
 https://32tim32.shinyapps.io/HPAStainR/ 
