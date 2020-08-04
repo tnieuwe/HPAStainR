@@ -27,32 +27,35 @@
 #' HPA_normal_data <- HPA_data_downloader('normal', save_file = FALSE)
 #' @importFrom utils download.file read.table unzip
 #' @export
-HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), save_file = TRUE, save_location = "") {
+HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), save_file = TRUE, 
+    save_location = "") {
     tissue_type <- tissue_type[1]
     
     ## First section runs if files are already downloaed to save time
-    if ((tissue_type == "both" | tissue_type == "normal") & file.exists(paste0(save_location, "normal_tissue.tsv.zip"))) {
+    if ((tissue_type == "both" | tissue_type == "normal") & file.exists(paste0(save_location, 
+        "normal_tissue.tsv.zip"))) {
         ## Normal tissue
-        hpa_dat <- read.table(unzip(paste0(save_location, "normal_tissue.tsv.zip")), header = TRUE, sep = "\t", 
-            stringsAsFactors = FALSE)
+        hpa_dat <- read.table(unzip(paste0(save_location, "normal_tissue.tsv.zip")), 
+            header = TRUE, sep = "\t", stringsAsFactors = FALSE)
         
         if (tissue_type != "both") {
             return(hpa_dat)
         }
     }
     
-    if ((tissue_type == "both" | tissue_type == "cancer") & file.exists(paste0(save_location, "pathology.tsv.zip"))) {
+    if ((tissue_type == "both" | tissue_type == "cancer") & file.exists(paste0(save_location, 
+        "pathology.tsv.zip"))) {
         ## Cancer tissue
         
-        cancer_dat <- read.table(unzip(paste0(save_location, "pathology.tsv.zip")), header = TRUE, sep = "\t", 
-            stringsAsFactors = FALSE)
+        cancer_dat <- read.table(unzip(paste0(save_location, "pathology.tsv.zip")), 
+            header = TRUE, sep = "\t", stringsAsFactors = FALSE)
         
         if (tissue_type != "both") {
             return(cancer_dat)
         }
     }
-    if (tissue_type == "both" & file.exists(paste0(save_location, "pathology.tsv.zip")) & file.exists(paste0(save_location, 
-        "normal_tissue.tsv.zip"))) {
+    if (tissue_type == "both" & file.exists(paste0(save_location, "pathology.tsv.zip")) & 
+        file.exists(paste0(save_location, "normal_tissue.tsv.zip"))) {
         all_dat <- list()
         all_dat$hpa_dat <- hpa_dat
         all_dat$cancer_dat <- cancer_dat
@@ -63,8 +66,10 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), sav
         if (tissue_type == "both" | tissue_type == "normal") {
             ## Normal tissue
             temp <- tempfile()
-            download.file("https://www.proteinatlas.org/download/normal_tissue.tsv.zip", temp)
-            hpa_dat <- read.table(unz(temp, "normal_tissue.tsv"), header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+            download.file("https://www.proteinatlas.org/download/normal_tissue.tsv.zip", 
+                temp)
+            hpa_dat <- read.table(unz(temp, "normal_tissue.tsv"), header = TRUE, 
+                sep = "\t", stringsAsFactors = FALSE)
             unlink(temp)
             if (tissue_type != "both") {
                 return(hpa_dat)
@@ -74,8 +79,10 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), sav
         if (tissue_type == "both" | tissue_type == "cancer") {
             ## Cancer tissue
             temp <- tempfile()
-            download.file("https://www.proteinatlas.org/download/pathology.tsv.zip", temp)
-            cancer_dat <- read.table(unz(temp, "pathology.tsv"), header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+            download.file("https://www.proteinatlas.org/download/pathology.tsv.zip", 
+                temp)
+            cancer_dat <- read.table(unz(temp, "pathology.tsv"), header = TRUE, sep = "\t", 
+                stringsAsFactors = FALSE)
             unlink(temp)
             if (tissue_type != "both") {
                 return(cancer_dat)
@@ -92,10 +99,10 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), sav
         if (tissue_type == "both" | tissue_type == "normal") {
             ## Normal tissue
             
-            download.file("https://www.proteinatlas.org/download/normal_tissue.tsv.zip", destfile = paste0(save_location, 
-                "normal_tissue.tsv.zip"))
-            hpa_dat <- read.table(unzip(paste0(save_location, "normal_tissue.tsv.zip")), header = TRUE, sep = "\t", 
-                stringsAsFactors = FALSE)
+            download.file("https://www.proteinatlas.org/download/normal_tissue.tsv.zip", 
+                destfile = paste0(save_location, "normal_tissue.tsv.zip"))
+            hpa_dat <- read.table(unzip(paste0(save_location, "normal_tissue.tsv.zip")), 
+                header = TRUE, sep = "\t", stringsAsFactors = FALSE)
             
             if (tissue_type != "both") {
                 return(hpa_dat)
@@ -105,10 +112,10 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), sav
         if (tissue_type == "both" | tissue_type == "cancer") {
             ## Cancer tissue
             
-            download.file("https://www.proteinatlas.org/download/pathology.tsv.zip", destfile = paste0(save_location, 
-                "pathology.tsv.zip"))
-            cancer_dat <- read.table(unzip(paste0(save_location, "pathology.tsv.zip")), header = TRUE, sep = "\t", 
-                stringsAsFactors = FALSE)
+            download.file("https://www.proteinatlas.org/download/pathology.tsv.zip", 
+                destfile = paste0(save_location, "pathology.tsv.zip"))
+            cancer_dat <- read.table(unzip(paste0(save_location, "pathology.tsv.zip")), 
+                header = TRUE, sep = "\t", stringsAsFactors = FALSE)
             
             if (tissue_type != "both") {
                 return(cancer_dat)

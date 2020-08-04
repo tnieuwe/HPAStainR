@@ -1,4 +1,5 @@
-utils::globalVariables(c("Cancer", "Cell.type", "Gene.name", "Level", "Not detected", "Not.detected", "Tissue", 
-    "cell_type", "det_o_test", "detected", "drop_na", "genes", "high_expression_count", "in_list", "list_mean", 
-    "low_expression_count", "medium_expression_count", "not_detected_count", "num_genes", "p_val", "p_val_adj", 
-    "proteins", "stain_mean", "stained", "staining_score", "tissue_cell"))
+utils::globalVariables(c("Cancer", "Cell.type", "Gene.name", "Level", "Not detected", 
+    "Not.detected", "Tissue", "cell_type", "det_o_test", "detected", "drop_na", "genes", 
+    "high_expression_count", "in_list", "list_mean", "low_expression_count", "medium_expression_count", 
+    "not_detected_count", "num_genes", "p_val", "p_val_adj", "proteins", "stain_mean", 
+    "stained", "staining_score", "tissue_cell"))

@@ -29,10 +29,10 @@
 
 
 shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
-  shinyApp(
-    ui = fluidPage(
-      titlePanel("HPAStain.R"),
-      # Option selection
+    shinyApp(
+      ui = fluidPage(
+        titlePanel("HPAStain.R"),
+        # Option selection
       sidebarLayout(
         # List of genes
         sidebarPanel(
@@ -133,19 +133,10 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
           )
         )
       )
-    ), # Newly required comma as shiny app is no longer at the end of the data
-
-
-
-
-
-
+    ),
+    # Newly required comma as shiny app is no longer at the end of the data
     server = function(input, output) {
-
-
-
       # Rename cell type data file
-
       if (is.null(cell_type_data)) {
         cell_type_data <- data.frame(No_data = paste(
                                        "No data given, please use",
@@ -161,21 +152,9 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
           `Ratio of Detected to Tested` = det_o_test
         )
       }
-
-
-      # Insert required function
-
-
-      # Removed because HPAStainR is loaded in the space?
-
-
-
-
-
       output$gene_list <- renderText({
         input$gene_list
       })
-
       n1 <- reactive({
         (
           HPAStainR(
@@ -195,20 +174,10 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
             drop_na_row = as.logical(input$drop_na_rows_in),
             adjusted_pvals = as.logical(input$adjusted_pvals)
           )
-
-
         )
       })
-
-
-
-
       output$table <- renderDataTable(print(n1()))
-
-
       output$summ_tab <- renderDataTable(print(cell_type_data))
-
-
       output$downloadData <- downloadHandler(
         filename = "HPAstainR_results.csv",
         content = function(file) {

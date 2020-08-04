@@ -63,10 +63,19 @@
 
 
 
-HPAStainR <- function(gene_list, hpa_dat, cancer_dat = data.frame(), cancer_analysis = c("normal", "cancer", 
-    "both"), tissue_level = TRUE, stringency = c("normal", "high", "low"), scale_abundance = TRUE, round_to = 2, 
-    csv_names = TRUE, stained_gene_data = TRUE, tested_protein_column = TRUE, percent_or_count = c("percent", 
-        "count", "both"), drop_na_row = FALSE, adjusted_pvals = TRUE) {
+HPAStainR <- function(gene_list,
+                      hpa_dat,
+                      cancer_dat = data.frame(),
+                      cancer_analysis = c("normal", "cancer", "both"),
+                      tissue_level = TRUE,
+                      stringency = c("normal", "high", "low"),
+                      scale_abundance = TRUE,
+                      round_to = 2,
+                      csv_names = TRUE,
+                      stained_gene_data = TRUE,
+                      tested_protein_column = TRUE,
+                      percent_or_count = c("percent", "count", "both"),
+                      drop_na_row = FALSE, adjusted_pvals = TRUE) {
     
     ## Catch issues
     cancer_analysis <- cancer_analysis[1]
