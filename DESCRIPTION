@@ -1,5 +1,6 @@
 Package: HPAStainR
-Title: Queries the Human Protein Atlas Staining Data for Multiple Proteins and Genes
+Title: Queries the Human Protein Atlas Staining Data for Multiple Proteins and
+    Genes
 Version: 0.99.0
 Authors@R: person(given = "Tim O.",
            family = "Nieuwenhuis",
@@ -16,8 +17,8 @@ Description: This package is built around the HPAStainR function. The purpose of
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: FALSE
-Depends: R (>= 4.0.0), shiny, dplyr, tibble, tidyr
-Imports: utils, stats, scales, stringr
+Depends: R (>= 4.0.0), dplyr, tidyr
+Imports: utils, stats, scales, stringr, tibble, shiny
 Suggests: 
     knitr,
     qpdf,
