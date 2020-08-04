@@ -1,38 +1,38 @@
 #' @title HPAStainR
 #'
 #' @description Uses a protein/gene list to query Human Protein Atlas (HPA)
-#'  staining data.
+#'    staining data.
 #'
 #' @param gene_list A list of proteins or genes that you want to query the HPA
-#'  staining data with.
+#'    staining data with.
 #' @param hpa_dat The data frame of normal HPA staining data data, required to
-#'  run HPAStainR.
+#'    run HPAStainR.
 #' @param cancer_dat The data frame of pathologic HPA staining data, required
-#'  to run HPAStainr.
+#'    to run HPAStainr.
 #' @param cancer_analysis A character string indicating inclusion of cancer data
-#'  in the result, must be one of "normal" (default), "cancer", or "both".
+#'    in the result, must be one of "normal" (default), "cancer", or "both".
 #' @param tissue_level A boolean that determines whether tissue level data for
-#'  the cell types are included. Default is TRUE
+#'    the cell types are included. Default is TRUE
 #' @param stringency A character string indicating how stringent the confidence
-#'  level of the staining findings have to be. Must be "normal" (default),
-#'  "high", or "low".
+#'    level of the staining findings have to be. Must be "normal" (default),
+#'    "high", or "low".
 #' @param scale_abundance A boolean that determines whether you scale Staining
-#'  Score based on the size of the gene list. Default is TRUE.
+#'    Score based on the size of the gene list. Default is TRUE.
 #' @param round_to  A numeric that determines how many decimals in numeric
-#'  outputs are desired. Default 2.
+#'    outputs are desired. Default 2.
 #' @param csv_names A Boolean determining if you want names suited for a csv
-#'  file/pipeline, or for presentation. Default is TRUE giving csv names.
+#'    file/pipeline, or for presentation. Default is TRUE giving csv names.
 #' @param stained_gene_data A boolean determining if there is a list of which
-#'  proteins stained, TRUE is default.
+#'    proteins stained, TRUE is default.
 #' @param tested_protein_column A boolean determining if there is a column
-#'  listing which proteins were tested, TRUE is default.
+#'    listing which proteins were tested, TRUE is default.
 #' @param percent_or_count A character string determining if percent of proteins
-#'  stained, count of proteins stained, or both are shown for high, medium, and
-#'  low staining. Must be "percent" (default), "count", or "both".
+#'    stained, count of proteins stained, or both are shown for high, medium, and
+#'    low staining. Must be "percent" (default), "count", or "both".
 #' @param drop_na_row A boolean that determines if cell types with no proteins
-#'  tested are kept or dropped, default is FALSE.
+#'    tested are kept or dropped, default is FALSE.
 #' @param adjusted_pvals A boolean indicating if you want the p-values corrected
-#'  for multiple testing. Default is TRUE.
+#'    for multiple testing. Default is TRUE.
 #'
 #' @section Details:
 #' Calculation of the staining score below:
@@ -40,16 +40,16 @@
 #'  (\frac{l \times 25}{t})}
 #'
 #'
-#' @return  A tibble containing the results of HPAStainR.
+#' @return    A tibble containing the results of HPAStainR.
 #'
 #' @examples
-#' ## Below will give you the results found on the shiny app website
-#' ## This example also uses HPA_data_downloader output as an example
-#' HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
-#' HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"),
-#'  HPA_data$hpa_dat,
-#'  HPA_data$cancer_dat,
-#'  "both")
+#'    ## Below will give you the results found on the shiny app website
+#'    ## This example also uses HPA_data_downloader output as an example
+#'    HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
+#'    HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"),
+#'    HPA_data$hpa_dat,
+#'    HPA_data$cancer_dat,
+#'    "both")
 #' @import dplyr 
 #' @import shiny
 #' @import tibble
