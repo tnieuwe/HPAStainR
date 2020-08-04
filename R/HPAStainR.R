@@ -81,13 +81,15 @@ HPAStainR <- function(gene_list, hpa_dat,
   cancer_analysis <- cancer_analysis[1]
   if (cancer_analysis == "normal" | cancer_analysis == "both") {
     if (!is.data.frame(hpa_dat)) {
-      stop("Are you sure hpa_dat is a dataframe? Download through HPADownloader if you're having issues")
+      stop(pste0("Are you sure hpa_dat is a dataframe? Download through",
+      "HPADownloader if you're having issues"))
     }
   }
 
   if (cancer_analysis == "cancer" | cancer_analysis == "both") {
     if (!is.data.frame(cancer_dat)) {
-      stop("Are you sure cancer_dat is a dataframe? Download through HPADownloader if you're having issues")
+      stop(paste("Are you sure cancer_dat is a dataframe? Download through",
+      "HPADownloader if you're having issues"))
     }
   }
   ## In case no one select an option this will pick the default
@@ -194,7 +196,8 @@ HPAStainR <- function(gene_list, hpa_dat,
       select((!!sym(cell_o_tiss)), Tissue) %>%
       distinct() %>%
       arrange((!!sym(cell_o_tiss)))
-    scaled_4_tiss_n_genes <- scaled_for_genes / rowSums(table(uni_tiss[[cell_o_tiss]], uni_tiss$Tissue))
+    scaled_4_tiss_n_genes <- scaled_for_genes /
+      rowSums(table(uni_tiss[[cell_o_tiss]], uni_tiss$Tissue))
     cell_type_dat_per <- cell_type_dat_per * scaled_4_tiss_n_genes
     ## New section that fixes counts of different groups
     tiss_cell_percent <- sub_dat %>% select(Gene.name, Cell.type, tissue_cell)
@@ -335,8 +338,10 @@ HPAStainR <- function(gene_list, hpa_dat,
                                            sub_cancer$Gene.name) > 0.5)
       ## Make it robust for non matching
       if (ncol(tiss_gene_table) != ncol(cancer_gene_table)) {
-        not_shared_normal <- colnames(cancer_gene_table)[!(colnames(cancer_gene_table) %in% colnames(tiss_gene_table))]
-        not_shared_cancer <- colnames(tiss_gene_table)[!(colnames(tiss_gene_table) %in% colnames(cancer_gene_table))]
+        not_shared_normal <- colnames(cancer_gene_table)[!(colnames(cancer_gene_table) %in%
+                                                             colnames(tiss_gene_table))]
+        not_shared_cancer <- colnames(tiss_gene_table)[!(colnames(tiss_gene_table) %in%
+                                                           colnames(cancer_gene_table))]
 
         norm_add_matrix <- matrix(data = FALSE,
                                   nrow = nrow(tiss_gene_table),
