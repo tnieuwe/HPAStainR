@@ -21,8 +21,8 @@
 
 
 HPA_summary_maker <- function(hpa_dat) {
-    hpa_dat_new <- hpa_dat %>% mutate(Tissue = gsub("[[:digit:]]+", "", Tissue), 
-        tissue_cell = paste0(toupper(str_trim(Tissue)), " - ", Cell.type)) %>% distinct() %>% 
-        group_by(tissue_cell) %>% summarise(proteins = n(), detected = sum(!(Level %in% 
-        "Not detected"))) %>% mutate(det_o_test = detected/proteins)
+    hpa_dat_new <- hpa_dat %>% mutate(Tissue = gsub("[[:digit:]]+", "", 
+        Tissue), tissue_cell = paste0(toupper(str_trim(Tissue)), " - ", 
+        Cell.type)) %>% distinct() %>% group_by(tissue_cell) %>% summarise(proteins = n(), 
+        detected = sum(!(Level %in% "Not detected"))) %>% mutate(det_o_test = detected/proteins)
 }
