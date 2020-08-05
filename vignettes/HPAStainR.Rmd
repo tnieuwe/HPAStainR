@@ -1,8 +1,11 @@
 ---
-title: "HPAStainR Package Vignette"
+title: "HPAStainR"
 author: "Tim O. Nieuwenhuis"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 1
 vignette: >
   %\VignetteIndexEntry{HPAStainR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,7 +19,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-HPAStainR is a package designed to query the pathologist scored staining data of multiple proteins/genes at once in the Human Protein Atlas (HPA). This vignette will walk you through:
+HPAStainR is a package designed to query the pathologist scored staining data of
+multiple proteins/genes at once in the Human Protein Atlas (HPA). This vignette
+will walk you through:
 
   - How to download the data required to run HPAStainR
   
@@ -24,18 +29,37 @@ HPAStainR is a package designed to query the pathologist scored staining data of
   
   - How to run HPAStainR as a Shiny App
 
+# How to install HPAStainR
+Installation can be completed using BiocManager and the code below.
+```{r, eval = FALSE}
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("HPAStainR")
+```
+
+
 
 # Preparing data for HPAStainR
 
 ## Downloading data from the website
-The first step required to run HPAStainR is downloading HPA's normal tissue staining data and their cancer data. While available online, HPAStainR has a function that can download and load the data for you.
+The first step required to run HPAStainR is downloading HPA's normal tissue
+staining data and their cancer data. While available online, HPAStainR has a
+function that can download and load the data for you.
 ```{r, download_data}
 library(HPAStainR)
 
 HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
 ```
 
-The above function has downloaded both the normal tissue and cancer data. As I selected save, but did not give an argument for `save location` this results both files being saved to the current working directory. The data has also been unzipped and loaded into the object HPA_dat as a list of dataframes called `hpa_dat` and `cancer_dat` which hold the normal tissue and cancer tissue data respectively. If the code is ran again it will use the previously saved files and not redownload them. 
+The above function has downloaded both normal tissue and cancer data.
+`save_file` was set to `FALSE`, but if it were set to `TRUE` as there was no
+given argument for `save location`,  both files being saved to the current
+working directory. The data has also been unzipped and loaded into the object
+HPA_dat as a list of data frames called `hpa_dat` and `cancer_dat` which hold
+the normal tissue and cancer tissue data respectively. If the code is run again
+it would redownload the files unless you had set `save_file` to `TRUE`, in which
+case it would just load said saved files.
+
 
 ### Head of normal tissue 
 ```{r, echo=FALSE, results='asis', normal_data}
@@ -55,7 +79,9 @@ knitr::kable(head(HPA_data$cancer_dat[,seq_len(7)], 10))
 
 ## Using the HPAStainR function
 
-Now that the data is available you can now us the HPAStainR function. This requires a list of proteins or genes you are interested in. In this example we're going to use pancreatic enzymes PRSS1, PNLIP, CELA3A, and the hormone PRL.
+Now that the data is available you can now us the HPAStainR function. This
+requires a list of proteins or genes you are interested in. In this example,
+we're going to use pancreatic enzymes PRSS1, PNLIP, CELA3A, and the hormone PRL.
 ```{r, function_example}
 gene_list = c("PRSS1", "PNLIP","CELA3A", "PRL")
 
@@ -98,7 +124,9 @@ The output of HPAStainR is a tibble with multiple columns. The basic columns inc
 Another way to use HPAStainR is as a [Shiny app](https://32tim32.shinyapps.io/HPAStainR/), and the function shiny_HPAStainR allows you to run a local version of the app:
 
 **Note:**
-If you want the tab from the online Shiny that gives you the stained : tested ratio of proteins, make sure to run the below code and insert the resulting object in the third argument (`cell_type_data`) of shiny_HPAStainR
+If you want the tab from the online Shiny that gives you the stained : tested
+ratio of proteins, make sure to run the below code and insert the resulting
+object in the third argument (`cell_type_data`) of shiny_HPAStainR
 
 ```{r, summarydata}
 hpa_summary <- HPA_summary_maker(hpa_dat = HPA_data$hpa_dat)
@@ -114,7 +142,15 @@ shiny_HPAStainR(hpa_dat = HPA_data$hpa_dat,
 ```
 ### A window should open like that below
 ![Shiny Output](shiny_output_6_15_20.png)
-You should now be able to query whatever list of proteins you like and can easily rank them on whatever column you wish. Also all of the options from the functions are modifiable on the left hand side panel.
+You should now be able to query whatever list of proteins you like and can
+easily rank them on whatever column you wish. Also all of the options from the
+functions are modifiable on the left hand side panel.
+
+
+# Session Info
+```{r, session_info}
+sessionInfo()
+```
 
 
 Any questions? Feel free to contact me at tnieuwe1[@]jhmi.edu
