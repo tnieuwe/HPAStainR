@@ -32,14 +32,14 @@ run HPAStainR.}
 to run HPAStainr.}
 
 \item{cancer_analysis}{A character string indicating inclusion of cancer data
-in the result, must be one of "normal" (default), "cancer", or "both".}
+in the result, must be one of 'normal' (default), 'cancer', or 'both'.}
 
 \item{tissue_level}{A boolean that determines whether tissue level data for
 the cell types are included. Default is TRUE}
 
 \item{stringency}{A character string indicating how stringent the confidence
-level of the staining findings have to be. Must be "normal" (default),
-"high", or "low".}
+level of the staining findings have to be. Must be 'normal' (default),
+'high', or 'low'.}
 
 \item{scale_abundance}{A boolean that determines whether you scale Staining
 Score based on the size of the gene list. Default is TRUE.}
@@ -57,8 +57,8 @@ proteins stained, TRUE is default.}
 listing which proteins were tested, TRUE is default.}
 
 \item{percent_or_count}{A character string determining if percent of proteins
-stained, count of proteins stained, or both are shown for high, medium, and
-low staining. Must be "percent" (default), "count", or "both".}
+stained, count of proteins stained, or both are shown for high, medium,
+ and low staining. Must be 'percent' (default), 'count', or 'both'.}
 
 \item{drop_na_row}{A boolean that determines if cell types with no proteins
 tested are kept or dropped, default is FALSE.}
@@ -71,7 +71,7 @@ A tibble containing the results of HPAStainR.
 }
 \description{
 Uses a protein/gene list to query Human Protein Atlas (HPA)
- staining data.
+   staining data.
 }
 \section{Details}{
 
@@ -81,11 +81,11 @@ Calculation of the staining score below:
 }
 
 \examples{
-## Below will give you the results found on the shiny app website
-## This example also uses HPA_data_downloader output as an example
-HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
-HPA_out <- HPAStainR(c("PRSS1", "PNLIP", "CELA3A", "PRL"),
- HPA_data$hpa_dat,
- HPA_data$cancer_dat,
- "both")
+   ## Below will give you the results found on the shiny app website
+   ## This example also uses HPA_data_downloader output as an example
+   HPA_data <- HPA_data_downloader(tissue_type = 'both', save_file = FALSE)
+   HPA_out <- HPAStainR(c('PRSS1', 'PNLIP', 'CELA3A', 'PRL'),
+   HPA_data$hpa_dat,
+   HPA_data$cancer_dat,
+   'both')
 }
