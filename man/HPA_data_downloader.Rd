@@ -12,12 +12,12 @@ HPA_data_downloader(
 }
 \arguments{
 \item{tissue_type}{A character string that determines which HPA data you
-want to download from the website. Has to be both" (default), "normal", 
-or "cancer".}
+want to download from the website. Has to be both' (default), 'normal', 
+or 'cancer'.}
 
 \item{save_file}{A boolean determining if you want the HPA data downloaded
 permanently or temporarily. Default is TRUE, meaning the file will be saved
- in the given "save_location", default being the current working directory.}
+ in the given 'save_location', default being the current working directory.}
 
 \item{save_location}{A character string indicating where you want the files
 to be saved if you are saving them. If the file(s) already exists in that
@@ -25,13 +25,13 @@ location, those will be loaded instead of redownloading the files.}
 }
 \value{
 List of dataframes or dataframe depending on tissue_type arguement.
- If tissue_type == "both" it will be a list of dataframes.
+ If tissue_type == 'both' it will be a list of dataframes.
 }
 \description{
 Used to download required data for HPAStainR
 }
 \examples{
-HPA_data <- HPA_data_downloader(tissue_type = "both", save_file = FALSE)
+HPA_data <- HPA_data_downloader(tissue_type = 'both', save_file = FALSE)
 ## Access normal data
 HPA_data$hpa_dat
 ## Access cancer data
@@ -39,5 +39,5 @@ HPA_data$cancer_dat
 
 
 ## Download only the normal tissue data
-HPA_normal_data <- HPA_data_downloader("normal", save_file = FALSE)
+HPA_normal_data <- HPA_data_downloader('normal', save_file = FALSE)
 }

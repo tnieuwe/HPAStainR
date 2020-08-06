@@ -100,8 +100,9 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
             temp <- tempfile()
             getURL(URL = norm_url, 
                 FUN = download.file, destfile = temp)
-            hpa_dat <- read.table(unz(temp, "normal_tissue.tsv"), header = TRUE, 
-                sep = "\t", stringsAsFactors = FALSE)
+            hpa_dat <- read.table(unz(temp, "normal_tissue.tsv"),
+                                  header = TRUE,
+                                  sep = "\t", stringsAsFactors = FALSE)
             unlink(temp)
             if (tissue_type != "both") {
                 return(hpa_dat)

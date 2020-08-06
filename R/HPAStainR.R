@@ -27,8 +27,8 @@
 #' @param tested_protein_column A boolean determining if there is a column
 #'    listing which proteins were tested, TRUE is default.
 #' @param percent_or_count A character string determining if percent of proteins
-#'    stained, count of proteins stained, or both are shown for high, medium, and
-#'    low staining. Must be 'percent' (default), 'count', or 'both'.
+#'    stained, count of proteins stained, or both are shown for high, medium,
+#'     and low staining. Must be 'percent' (default), 'count', or 'both'.
 #' @param drop_na_row A boolean that determines if cell types with no proteins
 #'    tested are kept or dropped, default is FALSE.
 #' @param adjusted_pvals A boolean indicating if you want the p-values corrected
@@ -81,7 +81,7 @@ HPAStainR <- function(gene_list,
     cancer_analysis <- cancer_analysis[1]
     if (cancer_analysis == "normal" | cancer_analysis == "both") {
         if (!is.data.frame(hpa_dat)) {
-            stop(pste0("Are you sure hpa_dat is a dataframe? Download through",
+            stop(paste0("Are you sure hpa_dat is a dataframe? Download through",
                        "HPADownloader if you're having issues"))
         }
     }
