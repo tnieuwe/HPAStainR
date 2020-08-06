@@ -3,3 +3,17 @@ Changes in Version 0.99.0 (2020-07-15)
         + Updated to coding practices
         + No Biocheck Errors
         + Updated imports and examples
+Changes in Version 0.99.1 (2020-08-06)
+    + Responded to comments from Bioconductor reviewer
+        + DESCRIPTION
+            + Moved `tibble` and `shiny` to imports
+        + Vignettes
+            + Made installation section
+            + Added table of contents
+            + Updated vignette text to agree with code
+            + Included sessionInfo()
+        + R code
+            + Updated `HPA_data_downloader` to fit bioconductor standards
+            for accesing a website.
+            + Reduced number of lines >80
+            + Reduced number of indents not multiples of 4 spaces
