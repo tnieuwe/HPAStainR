@@ -154,7 +154,7 @@ HPAStainR <- function(gene_list,
     
     if (stringency == "high") {
         sub_dat <- subset(sub_dat, sub_dat$Reliability %in%
-                              c("Enhanced", "Approved"))
+                              c("Enhanced", "Supported"))
     }
     
     ## Test how many genes are in hpa

@@ -17,3 +17,7 @@ Changes in Version 0.99.1 (2020-08-06)
             for accesing a website.
             + Reduced number of lines >80
             + Reduced number of indents not multiples of 4 spaces
+Changes in Version 0.99.1 (2020-09-02)
+    + R code
+        + Changed high stringency to include Enhanced and Supported removing
+        Approved
