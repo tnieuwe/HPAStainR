@@ -21,3 +21,11 @@ Changes in Version 0.99.2 (2020-09-02)
     + R code
         + Changed high stringency to include Enhanced and Supported removing
         Approved
+Changes in Version 1.00.0 (2020-10-28)
+    + Officially added to Bioconductor
+Changes in Version 1.1.1 (2020-11-20)
+    + testthat() HPA_data_downloader.R failed due to spelling change
+        + HPA changed "unfavourable" to "unfavorable"
+        + The testthat() has been changed to reflect their change
+        + More updates soon after all reviews from F1000 are in
+
