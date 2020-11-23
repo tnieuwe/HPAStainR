@@ -25,9 +25,9 @@ test_that("File columns haven't changed", {
                  "Medium",
                  "Low",
                  "Not.detected",
-                 "prognostic...favourable",
-                 "unprognostic...favourable",
-                 "prognostic...unfavourable", 
-                 "unprognostic...unfavourable")
+                 "prognostic...favorable",
+                 "unprognostic...favorable",
+                 "prognostic...unfavorable", 
+                 "unprognostic...unfavorable")
   )
 })
