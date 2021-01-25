@@ -284,9 +284,14 @@ HPAStainR <- function(gene_list,
         
         cancer_per[, -1] <- (cancer_count[, -1]/rowSums(cancer_count[, -1]))
         
+        ## Remove rownames to fix error Jan 25th 2021
+        rownames(cancer_count) <- c()
+        
         cancer_count <- as.matrix(cancer_count %>%
                                       column_to_rownames(var = "Cancer"))
         
+        ## Remove rownames to fix error Jan 25th 2021
+        rownames(cancer_per) <- c()
         cancer_per <- as.matrix(cancer_per %>%
                                     column_to_rownames(var = "Cancer"))
         
