@@ -26,6 +26,7 @@
 #' ## Download only the normal tissue data
 #' HPA_normal_data <- HPA_data_downloader('normal', save_file = FALSE)
 #' @importFrom utils download.file read.table unzip
+#' @importFrom data.table fread
 #' @export
 HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), 
     save_file = TRUE, save_location = "") {
@@ -53,19 +54,22 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
     
     tissue_type <- tissue_type[1]
 
-    #normal URL
+    ## normal URL
     norm_url <- "https://www.proteinatlas.org/download/normal_tissue.tsv.zip"
+    ## path URL
     path_url <- "https://www.proteinatlas.org/download/pathology.tsv.zip"
     
         
-    ## First section runs if files are already downloaed to save time
+    ## First section runs if files are already downloaded to save time
+    
     if ((tissue_type == "both" | tissue_type == "normal") &
         file.exists(paste0(save_location, 
         "normal_tissue.tsv.zip"))) {
         ## Normal tissue
-        hpa_dat <- read.table(
+        hpa_dat <- data.table::fread(
             unzip(paste0(save_location, "normal_tissue.tsv.zip")), 
-            header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+            header = TRUE, sep = "\t", stringsAsFactors = FALSE,
+            data.table = FALSE, check.names = TRUE)
         
         if (tissue_type != "both") {
             return(hpa_dat)
@@ -77,9 +81,10 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
         "pathology.tsv.zip"))) {
         ## Cancer tissue
         
-        cancer_dat <- read.table(
+        cancer_dat <- data.table::fread(
             unzip(paste0(save_location, "pathology.tsv.zip")), 
-            header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+            header = TRUE, sep = "\t", stringsAsFactors = FALSE,
+            data.table = FALSE, check.names = TRUE)
         
         if (tissue_type != "both") {
             return(cancer_dat)
@@ -94,15 +99,22 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
         return(all_dat)
     }
     
+    ## Begins section where files are downloaded 
+    
     if (save_file == FALSE) {
         if (tissue_type == "both" | tissue_type == "normal") {
             ## Normal tissue
+            ## 2/3/2021 Switched to fread require tmp_dir and unzip code
+            ## as fread can't read files made using unz()
             temp <- tempfile()
+            tmp_dir = tempdir()
             getURL(URL = norm_url, 
                 FUN = download.file, destfile = temp)
-            hpa_dat <- read.table(unz(temp, "normal_tissue.tsv"),
+            unzip(temp,  "normal_tissue.tsv", exdir = tmp_dir)
+            hpa_dat <- data.table::fread(file.path(tmp_dir, "normal_tissue.tsv"),
                                   header = TRUE,
-                                  sep = "\t", stringsAsFactors = FALSE)
+                                  sep = "\t", stringsAsFactors = FALSE,
+                                  data.table = FALSE, check.names = TRUE)
             unlink(temp)
             if (tissue_type != "both") {
                 return(hpa_dat)
@@ -112,10 +124,13 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
         if (tissue_type == "both" | tissue_type == "cancer") {
             ## Cancer tissue
             temp <- tempfile()
+            tmp_dir = tempdir()
             getURL(URL = path_url, 
                 FUN = download.file, destfile = temp)
-            cancer_dat <- read.table(unz(temp, "pathology.tsv"), header = TRUE, 
-                sep = "\t", stringsAsFactors = FALSE)
+            unzip(temp,  "pathology.tsv", exdir = tmp_dir)
+            cancer_dat <- data.table::fread(file.path(tmp_dir, "pathology.tsv"), header = TRUE, 
+                sep = "\t", stringsAsFactors = FALSE,
+                data.table = FALSE, check.names = TRUE)
             unlink(temp)
             if (tissue_type != "both") {
                 return(cancer_dat)
@@ -135,9 +150,10 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
             getURL(URL = norm_url, 
                 FUN = download.file, destfile = paste0(save_location,
                                                        "normal_tissue.tsv.zip"))
-            hpa_dat <- read.table(unzip(paste0(save_location,
+            hpa_dat <- data.table::fread(unzip(paste0(save_location,
                                                "normal_tissue.tsv.zip")), 
-                header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+                header = TRUE, sep = "\t", stringsAsFactors = FALSE,
+                data.table = FALSE, check.names = TRUE)
             
             if (tissue_type != "both") {
                 return(hpa_dat)
@@ -150,9 +166,10 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
             getURL(URL = path_url, 
                 FUN = download.file,
                 destfile = paste0(save_location, "pathology.tsv.zip"))
-            cancer_dat <- read.table(unzip(paste0(save_location,
+            cancer_dat <- data.table::fread(unzip(paste0(save_location,
                                                   "pathology.tsv.zip")), 
-                header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+                header = TRUE, sep = "\t", stringsAsFactors = FALSE,
+                data.table = FALSE, check.names = TRUE)
             
             if (tissue_type != "both") {
                 return(cancer_dat)
