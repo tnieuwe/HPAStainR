@@ -279,6 +279,8 @@ HPAStainR <- function(gene_list,
                       Medium = sum(Medium),
                       Low = sum(Low),
                       `Not detected` = sum(Not.detected))
+        ## Remove rownames due to dplyr
+        rownames(cancer_count) <- c()
         
         cancer_per <- cancer_count
         
