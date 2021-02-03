@@ -13,7 +13,6 @@ Changes in Version 0.99.1 (2020-08-06)
             + Updated vignette text to agree with code
             + Included sessionInfo()
         + R code
-            + Updated `HPA_data_downloader` to fit bioconductor standards
             for accesing a website.
             + Reduced number of lines >80
             + Reduced number of indents not multiples of 4 spaces
@@ -21,10 +20,14 @@ Changes in Version 0.99.2 (2020-09-02)
     + R code
         + Changed high stringency to include Enhanced and Supported removing
         Approved
-Changes in Version 1.00.0 (2020-10-28)
+Changes in Version 1.0.0 (2020-10-28)
     + Officially added to Bioconductor
-Changes in Version 1.1.1 (2020-11-20)
+Changes in Version 1.0.1 (2020-11-20)
     + testthat() HPA_data_downloader.R failed due to spelling change
         + HPA changed "unfavourable" to "unfavorable"
         + The testthat() has been changed to reflect their change
         + More updates soon after all reviews from F1000 are in
+Changes in Version 1.0.2 (2021-25-20)
+    + Changed section of code crashing due to dplyr update.
+Changes in Version 1.0.3 (2021-02-03)
+    + Changed read.table() in HPA_data_downloader.R to data.table's fread()
