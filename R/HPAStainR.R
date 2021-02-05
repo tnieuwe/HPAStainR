@@ -15,7 +15,14 @@
 #'    the cell types are included. Default is TRUE
 #' @param stringency A character string indicating how stringent the confidence
 #'    level of the staining findings have to be. Must be 'normal' (default),
-#'    'high', or 'low'.
+#'    'high', or 'low'. This stringency is based on the `Reliability` column
+#'    from the hpa_dat object which varies from "Enhanced", "Supported",
+#'    "Approved", to "Uncertain" in decreasing order of certainty. Low
+#'    stringency includes all data, normal stringency includes "Enhanced",
+#'    "Supported", and "Approved", while high stringency only includes
+#'    "Enhanced" and "Supported". Further information about these
+#'     categorizations can be found in the following link
+#'     https://www.proteinatlas.org/about/assays+annotation
 #' @param scale_abundance A boolean that determines whether you scale Staining
 #'    Score based on the size of the gene list. Default is TRUE.
 #' @param round_to  A numeric that determines how many decimals in numeric
