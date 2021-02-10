@@ -38,6 +38,12 @@
 #'     and low staining. Must be 'percent' (default), 'count', or 'both'.
 #' @param drop_na_row A boolean that determines if cell types with no proteins
 #'    tested are kept or dropped, default is FALSE.
+#' @param test_type A character vector for either "fisher" or "chi square",
+#'    used to select the statistical test for determining cell type enrichment.
+#'    The two options are Fisher's Exact Test and a Chi Square test. The
+#'    original version of HPAStainR defaulted to the Chi Square test, however
+#'    because this requires simulated values to run correctly, we suggest the
+#'    usage of the Fisher's Exact Test for consistency.
 #' @param adjusted_pvals A boolean indicating if you want the p-values corrected
 #'    for multiple testing. Default is TRUE.
 #'
@@ -82,6 +88,7 @@ HPAStainR <- function(gene_list,
                       tested_protein_column = TRUE,
                       percent_or_count = c("percent", "count", "both"),
                       drop_na_row = FALSE,
+                      test_type = c("fisher", "chi square"),
                       adjusted_pvals = TRUE) {
     
     ## Catch issues
@@ -110,6 +117,9 @@ HPAStainR <- function(gene_list,
     
     ## A holdover from my personal pipeline
     scale_genes <- TRUE
+    
+    ## Select the correct test type
+    test_type = test_type[1]
     
     ## Make gene list robust to incongruencies---------- test if comma 
     ## separated or non comma separated
@@ -592,19 +602,25 @@ HPAStainR <- function(gene_list,
     ## The chi test
     
     if (nrow(quart_hpa) != 0) {
-        chi_out <- quart_hpa %>% group_by(tissue_cell) %>%
-            summarise(p_val = chisq.test(stained,
-                                         in_list,
-                                         simulate.p.value = TRUE)$p.value) %>% 
+        test_out <- quart_hpa %>% group_by(tissue_cell) %>%
+            {if (test_type == "chi square") summarise(., p_val = chisq.test(
+                stained,
+                in_list,
+                simulate.p.value = TRUE)$p.value)
+                else . } %>% 
+            {if (test_type == "fisher") summarise(., p_val = fisher.test(
+                stained,
+                in_list)$p.value)
+                else . } %>%
             rename(cell_type = tissue_cell)
-        chi_out$p_val_adj <- p.adjust(chi_out$p_val)
+        test_out$p_val_adj <- p.adjust(test_out$p_val)
     }
     
-    if (exists("chi_out")) {
+    if (exists("test_out")) {
         if (cancer_analysis == "normal") {
-            cell_type_out <- left_join(cell_type_out, chi_out, by = "cell_type")
+            cell_type_out <- left_join(cell_type_out, test_out, by = "cell_type")
         } else {
-            chi_out_tiss <- chi_out
+            test_out_tiss <- test_out
         }
     }
     
@@ -663,26 +679,32 @@ HPAStainR <- function(gene_list,
         quart_canc <- quart_canc %>% filter(!(Cancer %in% not_2_levels$Cancer))
         
         if (nrow(quart_canc) != 0) {
-            chi_out <- quart_canc %>% group_by(Cancer) %>%
-                summarise(p_val = chisq.test(stained,
-                                             in_list,
-                                             simulate.p.value = TRUE)$p.value) %>% 
+            test_out <- quart_canc %>% group_by(Cancer) %>%
+                {if (test_type == "chi square") summarise(., p_val = chisq.test(
+                    stained,
+                    in_list,
+                    simulate.p.value = TRUE)$p.value)
+                    else . } %>% 
+                {if (test_type == "fisher") summarise(., p_val = fisher.test(
+                    stained,
+                    in_list)$p.value)
+                    else . } %>%
                 rename(cell_type = Cancer)
             
-            chi_out$p_val_adj <- p.adjust(chi_out$p_val)
+            test_out$p_val_adj <- p.adjust(test_out$p_val)
         }
         
         
         
         if (cancer_analysis == "both") {
-            chi_out <- bind_rows(chi_out_tiss, chi_out)
+            test_out <- bind_rows(test_out_tiss, test_out)
             ## For some reason this left_join duplicates rows, and I have no
             ## idea why, but unique fixes it
             cell_type_out <- left_join(cell_type_out,
-                                       chi_out, by = "cell_type") %>% unique()
+                                       test_out, by = "cell_type") %>% unique()
         } else {
             cell_type_out <- left_join(cell_type_out,
-                                       chi_out, by = "cell_type") %>% unique()
+                                       test_out, by = "cell_type") %>% unique()
         }
     }
     
