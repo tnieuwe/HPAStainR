@@ -716,8 +716,8 @@ HPAStainR <- function(gene_list,
     }
     
     cell_type_out <- cell_type_out %>%
-        mutate(p_val = format.pval(p_val, round_to, 0.005),
-               p_val_adj = format.pval(p_val_adj, round_to, 0.005))
+        mutate(p_val = suppressWarnings(as.numeric(format.pval(p_val, round_to))),
+               p_val_adj = suppressWarnings(as.numeric(format.pval(p_val_adj, round_to))))
     
     
     
