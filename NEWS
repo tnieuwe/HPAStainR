@@ -31,3 +31,24 @@ Changes in Version 1.0.2 (2021-25-20)
     + Changed section of code crashing due to dplyr update.
 Changes in Version 1.0.3 (2021-02-03)
     + Changed read.table() in HPA_data_downloader.R to data.table's fread()
+Changes in Version 1.0.4 (YYYY-MM-DD)
+    + The first update in response to F1000 comments
+    + Added dating arguments to HPA_data_downloader
+        + Now when you have save_file set to true, the file will be stamped with
+        the date it was downloaded. This allows for reproducible access tot he
+        file you created.
+        + To deal with dated files we now have the arguments
+        `version_date_normal` and `version_date` cancer, which allows users to
+        select which downloaded HPA data they want to use based on the date of
+        downloading. The default to "last" which will search for the latest
+        version of the files in the `save_location`
+        + The last addition is `force_download`, an argument that will overide
+        the function's default usage of the local files in case you want to 
+        download a more recent version of the HPA data.
+    + Change to HPAStainR and by extension shiny_HPAStainR
+        + Added Fisher's Exact Test to HPAStainR's main function
+            + Due to the inconsistency that exists in using simulated p-values in 
+            `chisq.test` the default new test if Fisher's exact and an argument 
+            `test_type` has been added so users can pick between the two. 
+        + Changed the output of the p-values to numeric instead of a character.
+        
