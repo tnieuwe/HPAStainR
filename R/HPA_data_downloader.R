@@ -11,7 +11,19 @@
 #' @param save_location A character string indicating where you want the files
 #'  to be saved if you are saving them. If the file(s) already exists in that
 #'  location, those will be loaded instead of redownloading the files.
-#'
+#' @param version_date_normal a character string indicating what date of the 
+#' normal tissue file you want returned if you have saved one. If you say "last"
+#' it will return the most recently downloaded file, otherwise give a date in
+#' YYYY-MM-DD format.
+#' @param version_date_cancer a character string indicating what date of the 
+#' cancer tissue file you want returned if you have saved one. If you say "last"
+#' it will return the most recently downloaded file, otherwise give a date in
+#' YYYY-MM-DD format.
+#' @param force_download Either a TRUE or FALSE indicating that the HPA files
+#' should be re-downloaded from the website, regardless of there being a local
+#' recent version. This should be done occasionally to make sure you have up to
+#' date data.
+#' 
 #' @return  List of dataframes or dataframe depending on tissue_type arguement.
 #'  If tissue_type == 'both' it will be a list of dataframes.
 #'
@@ -29,7 +41,8 @@
 #' @importFrom data.table fread
 #' @export
 HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), 
-    save_file = TRUE, save_location = "") {
+    save_file = TRUE, save_location = "", version_date_normal = "last",
+    version_date_cancer = "last", force_download = FALSE) {
     
     ## A suggest function from Bioconductor allowing for better resource
     ## querying
@@ -62,12 +75,58 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
         
     ## First section runs if files are already downloaded to save time
     
+    ## Get date 
+    cur_date <- Sys.Date()
+    
+    
+    ## Make if else here that searches other files in the area and picks the one
+    ## with the most recent date.
+    dir_files <- ifelse(save_location == "", ".", save_location)
+    
+    ## Get list of normal files and then cancer files
+    norm_files <- list.files(dir_files, all.files = TRUE)[grepl("normal_tissue",
+                                              list.files(dir_files,
+                                                         all.files = TRUE))]
+    canc_files <- list.files(dir_files, all.files = TRUE)[grepl("pathology",
+                                              list.files(dir_files,
+                                                         all.files = TRUE))]
+    
+    ## Remove dots if there
+    norm_files <- gsub("^\\.", "", norm_files)
+    canc_files <- gsub("^\\.", "", canc_files)
+    
+    if (version_date_normal == "last" & length(norm_files) != 0) {
+       
+        ## Find most recent normal file
+        version_date_normal <- max(substr(norm_files, 15, 24))
+
+    }
+    if (version_date_cancer == "last" & length(canc_files) != 0) {
+        
+        ## Find most recent cancer file
+
+        version_date_cancer <- max(substr(canc_files, 11, 20))
+    }
+    
+    ##Do one last dot check in case user doesn't use "/." in path
+    if (grepl("\\.$", save_location) == FALSE) {
+        save_location <- paste0(save_location, ".")
+    } 
+    
+    ## Saving strings for normal tissue and cancer to keep consistency
+    ## throughout the code
+    saved_normal_dat <- paste0(save_location,
+                         "normal_tissue_", version_date_normal,".tsv.zip")
+    saved_cancer_dat <- paste0(save_location, 
+                               "pathology_", version_date_cancer,".tsv.zip")
+
+    
+    
     if ((tissue_type == "both" | tissue_type == "normal") &
-        file.exists(paste0(save_location, 
-        "normal_tissue.tsv.zip"))) {
+        file.exists(saved_normal_dat) & force_download == FALSE) {
         ## Normal tissue
         hpa_dat <- data.table::fread(
-            unzip(paste0(save_location, "normal_tissue.tsv.zip")), 
+            unzip(saved_normal_dat), 
             header = TRUE, sep = "\t", stringsAsFactors = FALSE,
             data.table = FALSE, check.names = TRUE)
         
@@ -77,12 +136,11 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
     }
     
     if ((tissue_type == "both" | tissue_type == "cancer") &
-        file.exists(paste0(save_location, 
-        "pathology.tsv.zip"))) {
+        file.exists(saved_cancer_dat) & force_download == FALSE) {
         ## Cancer tissue
         
         cancer_dat <- data.table::fread(
-            unzip(paste0(save_location, "pathology.tsv.zip")), 
+            unzip(saved_cancer_dat), 
             header = TRUE, sep = "\t", stringsAsFactors = FALSE,
             data.table = FALSE, check.names = TRUE)
         
@@ -91,13 +149,15 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
         }
     }
     if (tissue_type == "both" & file.exists(
-        paste0(save_location, "pathology.tsv.zip")) & 
-        file.exists(paste0(save_location, "normal_tissue.tsv.zip"))) {
+        saved_cancer_dat) & 
+        file.exists(saved_normal_dat) & force_download == FALSE) {
         all_dat <- list()
         all_dat$hpa_dat <- hpa_dat
         all_dat$cancer_dat <- cancer_dat
         return(all_dat)
     }
+    
+    
     
     ## Begins section where files are downloaded 
     
@@ -121,14 +181,15 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
             }
         }
         
-        if (tissue_type == "both" | tissue_type == "cancer") {
+        if (tissue_type == "both" | tissue_type == "cancer" & save_file == FALSE) {
             ## Cancer tissue
             temp <- tempfile()
             tmp_dir = tempdir()
             getURL(URL = path_url, 
                 FUN = download.file, destfile = temp)
             unzip(temp,  "pathology.tsv", exdir = tmp_dir)
-            cancer_dat <- data.table::fread(file.path(tmp_dir, "pathology.tsv"), header = TRUE, 
+            cancer_dat <- data.table::fread(file.path(tmp_dir, "pathology.tsv"),
+                                            header = TRUE, 
                 sep = "\t", stringsAsFactors = FALSE,
                 data.table = FALSE, check.names = TRUE)
             unlink(temp)
@@ -143,15 +204,18 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
             return(all_dat)
         }
     }
+    
+    ## 2021/2/4 Adding system date to save system
+    normal_tissue_save <- paste0(save_location,"normal_tissue_",cur_dat,".tsv.zip")
+    cancer_tissue_save <- paste0(save_location,"pathology_",cur_dat,".tsv.zip")
+    
     if (save_file == TRUE) {
         if (tissue_type == "both" | tissue_type == "normal") {
             ## Normal tissue
             
             getURL(URL = norm_url, 
-                FUN = download.file, destfile = paste0(save_location,
-                                                       "normal_tissue.tsv.zip"))
-            hpa_dat <- data.table::fread(unzip(paste0(save_location,
-                                               "normal_tissue.tsv.zip")), 
+                FUN = download.file, destfile = normal_tissue_save)
+            hpa_dat <- data.table::fread(unzip(normal_tissue_save), 
                 header = TRUE, sep = "\t", stringsAsFactors = FALSE,
                 data.table = FALSE, check.names = TRUE)
             
@@ -165,9 +229,8 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
             
             getURL(URL = path_url, 
                 FUN = download.file,
-                destfile = paste0(save_location, "pathology.tsv.zip"))
-            cancer_dat <- data.table::fread(unzip(paste0(save_location,
-                                                  "pathology.tsv.zip")), 
+                destfile = cancer_tissue_save)
+            cancer_dat <- data.table::fread(unzip(cancer_tissue_save), 
                 header = TRUE, sep = "\t", stringsAsFactors = FALSE,
                 data.table = FALSE, check.names = TRUE)
             

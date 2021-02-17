@@ -7,7 +7,10 @@
 HPA_data_downloader(
   tissue_type = c("both", "normal", "cancer"),
   save_file = TRUE,
-  save_location = ""
+  save_location = "",
+  version_date_normal = "last",
+  version_date_cancer = "last",
+  force_download = FALSE
 )
 }
 \arguments{
@@ -22,6 +25,21 @@ permanently or temporarily. Default is TRUE, meaning the file will be saved
 \item{save_location}{A character string indicating where you want the files
 to be saved if you are saving them. If the file(s) already exists in that
 location, those will be loaded instead of redownloading the files.}
+
+\item{version_date_normal}{a character string indicating what date of the 
+normal tissue file you want returned if you have saved one. If you say "last"
+it will return the most recently downloaded file, otherwise give a date in
+YYYY-MM-DD format.}
+
+\item{version_date_cancer}{a character string indicating what date of the 
+cancer tissue file you want returned if you have saved one. If you say "last"
+it will return the most recently downloaded file, otherwise give a date in
+YYYY-MM-DD format.}
+
+\item{force_download}{Either a TRUE or FALSE indicating that the HPA files
+should be re-downloaded from the website, regardless of there being a local
+recent version. This should be done occasionally to make sure you have up to
+date data.}
 }
 \value{
 List of dataframes or dataframe depending on tissue_type arguement.

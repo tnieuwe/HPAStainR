@@ -71,9 +71,23 @@ knitr::kable(head(HPA_data$hpa_dat, 10))
 knitr::kable(head(HPA_data$cancer_dat[,seq_len(7)], 10))
 ```
 
+## The `hpar` package as a version controlled alternative
+
+`HPA_data_downloader` provides the most up to date information on the Human Protein Atlas website. However for more consistent results with version control, feel free to use the data from the `hpar` BioConductor package using the following commands.
+
+```{r}
+if (!requireNamespace("hpar", quietly = TRUE))
+    BiocManager::install(hpar)
+data(hpaNormalTissue, package = "hpar")
+data(hpaCancer, package = "hpar")
 
 
+```
 
+### Head of `hpar`'s normal tissue 
+```{r, echo=FALSE, results='asis', normal_data_hpar}
+knitr::kable(head(hpaNormalTissue, 10))
+```
 
 # Using HPAStainR
 

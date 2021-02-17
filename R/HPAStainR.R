@@ -15,7 +15,14 @@
 #'    the cell types are included. Default is TRUE
 #' @param stringency A character string indicating how stringent the confidence
 #'    level of the staining findings have to be. Must be 'normal' (default),
-#'    'high', or 'low'.
+#'    'high', or 'low'. This stringency is based on the `Reliability` column
+#'    from the hpa_dat object which varies from "Enhanced", "Supported",
+#'    "Approved", to "Uncertain" in decreasing order of certainty. Low
+#'    stringency includes all data, normal stringency includes "Enhanced",
+#'    "Supported", and "Approved", while high stringency only includes
+#'    "Enhanced" and "Supported". Further information about these
+#'     categorizations can be found in the following link
+#'     https://www.proteinatlas.org/about/assays+annotation
 #' @param scale_abundance A boolean that determines whether you scale Staining
 #'    Score based on the size of the gene list. Default is TRUE.
 #' @param round_to  A numeric that determines how many decimals in numeric
@@ -31,6 +38,12 @@
 #'     and low staining. Must be 'percent' (default), 'count', or 'both'.
 #' @param drop_na_row A boolean that determines if cell types with no proteins
 #'    tested are kept or dropped, default is FALSE.
+#' @param test_type A character vector for either "fisher" or "chi square",
+#'    used to select the statistical test for determining cell type enrichment.
+#'    The two options are Fisher's Exact Test and a Chi Square test. The
+#'    original version of HPAStainR defaulted to the Chi Square test, however
+#'    because this requires simulated values to run correctly, we suggest the
+#'    usage of the Fisher's Exact Test for consistency.
 #' @param adjusted_pvals A boolean indicating if you want the p-values corrected
 #'    for multiple testing. Default is TRUE.
 #'
@@ -56,7 +69,7 @@
 #' @import tidyr
 #' @importFrom scales percent
 #' @importFrom stringr str_detect str_split str_trim
-#' @importFrom stats chisq.test p.adjust quantile
+#' @importFrom stats chisq.test p.adjust quantile fisher.test
 #' @export
 
 
@@ -75,6 +88,7 @@ HPAStainR <- function(gene_list,
                       tested_protein_column = TRUE,
                       percent_or_count = c("percent", "count", "both"),
                       drop_na_row = FALSE,
+                      test_type = c("fisher", "chi square"),
                       adjusted_pvals = TRUE) {
     
     ## Catch issues
@@ -103,6 +117,9 @@ HPAStainR <- function(gene_list,
     
     ## A holdover from my personal pipeline
     scale_genes <- TRUE
+    
+    ## Select the correct test type
+    test_type = test_type[1]
     
     ## Make gene list robust to incongruencies---------- test if comma 
     ## separated or non comma separated
@@ -585,19 +602,25 @@ HPAStainR <- function(gene_list,
     ## The chi test
     
     if (nrow(quart_hpa) != 0) {
-        chi_out <- quart_hpa %>% group_by(tissue_cell) %>%
-            summarise(p_val = chisq.test(stained,
-                                         in_list,
-                                         simulate.p.value = TRUE)$p.value) %>% 
+        test_out <- quart_hpa %>% group_by(tissue_cell) %>%
+            {if (test_type == "chi square") summarise(., p_val = chisq.test(
+                stained,
+                in_list,
+                simulate.p.value = TRUE)$p.value)
+                else . } %>% 
+            {if (test_type == "fisher") summarise(., p_val = fisher.test(
+                stained,
+                in_list)$p.value)
+                else . } %>%
             rename(cell_type = tissue_cell)
-        chi_out$p_val_adj <- p.adjust(chi_out$p_val)
+        test_out$p_val_adj <- p.adjust(test_out$p_val)
     }
     
-    if (exists("chi_out")) {
+    if (exists("test_out")) {
         if (cancer_analysis == "normal") {
-            cell_type_out <- left_join(cell_type_out, chi_out, by = "cell_type")
+            cell_type_out <- left_join(cell_type_out, test_out, by = "cell_type")
         } else {
-            chi_out_tiss <- chi_out
+            test_out_tiss <- test_out
         }
     }
     
@@ -656,26 +679,32 @@ HPAStainR <- function(gene_list,
         quart_canc <- quart_canc %>% filter(!(Cancer %in% not_2_levels$Cancer))
         
         if (nrow(quart_canc) != 0) {
-            chi_out <- quart_canc %>% group_by(Cancer) %>%
-                summarise(p_val = chisq.test(stained,
-                                             in_list,
-                                             simulate.p.value = TRUE)$p.value) %>% 
+            test_out <- quart_canc %>% group_by(Cancer) %>%
+                {if (test_type == "chi square") summarise(., p_val = chisq.test(
+                    stained,
+                    in_list,
+                    simulate.p.value = TRUE)$p.value)
+                    else . } %>% 
+                {if (test_type == "fisher") summarise(., p_val = fisher.test(
+                    stained,
+                    in_list)$p.value)
+                    else . } %>%
                 rename(cell_type = Cancer)
             
-            chi_out$p_val_adj <- p.adjust(chi_out$p_val)
+            test_out$p_val_adj <- p.adjust(test_out$p_val)
         }
         
         
         
         if (cancer_analysis == "both") {
-            chi_out <- bind_rows(chi_out_tiss, chi_out)
+            test_out <- bind_rows(test_out_tiss, test_out)
             ## For some reason this left_join duplicates rows, and I have no
             ## idea why, but unique fixes it
             cell_type_out <- left_join(cell_type_out,
-                                       chi_out, by = "cell_type") %>% unique()
+                                       test_out, by = "cell_type") %>% unique()
         } else {
             cell_type_out <- left_join(cell_type_out,
-                                       chi_out, by = "cell_type") %>% unique()
+                                       test_out, by = "cell_type") %>% unique()
         }
     }
     
@@ -685,10 +714,11 @@ HPAStainR <- function(gene_list,
     if (!("p_val" %in% colnames(cell_type_out))) {
         cell_type_out <- cell_type_out %>% mutate(p_val = 1, p_val_adj = 1)
     }
-    
-    cell_type_out <- cell_type_out %>%
-        mutate(p_val = format.pval(p_val, round_to, 0.005),
-               p_val_adj = format.pval(p_val_adj, round_to, 0.005))
+    ## Results that were to significant were ruining the analysis formatting
+    ## below
+    # cell_type_out <- cell_type_out %>%
+    #     mutate(p_val = suppressWarnings(as.numeric(format.pval(p_val, round_to))),
+    #            p_val_adj = suppressWarnings(as.numeric(format.pval(p_val_adj, round_to))))
     
     
     
