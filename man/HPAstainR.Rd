@@ -18,6 +18,7 @@ HPAStainR(
   tested_protein_column = TRUE,
   percent_or_count = c("percent", "count", "both"),
   drop_na_row = FALSE,
+  test_type = c("fisher", "chi square"),
   adjusted_pvals = TRUE
 )
 }
@@ -39,7 +40,14 @@ the cell types are included. Default is TRUE}
 
 \item{stringency}{A character string indicating how stringent the confidence
 level of the staining findings have to be. Must be 'normal' (default),
-'high', or 'low'.}
+'high', or 'low'. This stringency is based on the `Reliability` column
+from the hpa_dat object which varies from "Enhanced", "Supported",
+"Approved", to "Uncertain" in decreasing order of certainty. Low
+stringency includes all data, normal stringency includes "Enhanced",
+"Supported", and "Approved", while high stringency only includes
+"Enhanced" and "Supported". Further information about these
+ categorizations can be found in the following link
+ https://www.proteinatlas.org/about/assays+annotation}
 
 \item{scale_abundance}{A boolean that determines whether you scale Staining
 Score based on the size of the gene list. Default is TRUE.}
@@ -62,6 +70,13 @@ stained, count of proteins stained, or both are shown for high, medium,
 
 \item{drop_na_row}{A boolean that determines if cell types with no proteins
 tested are kept or dropped, default is FALSE.}
+
+\item{test_type}{A character vector for either "fisher" or "chi square",
+used to select the statistical test for determining cell type enrichment.
+The two options are Fisher's Exact Test and a Chi Square test. The
+original version of HPAStainR defaulted to the Chi Square test, however
+because this requires simulated values to run correctly, we suggest the
+usage of the Fisher's Exact Test for consistency.}
 
 \item{adjusted_pvals}{A boolean indicating if you want the p-values corrected
 for multiple testing. Default is TRUE.}
