@@ -41,7 +41,8 @@
 #' @importFrom data.table fread
 #' @export
 HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"), 
-    save_file = TRUE, save_location = "", version_date_normal = "last", version_date_cancer = "last", force_download = FALSE) {
+    save_file = TRUE, save_location = "", version_date_normal = "last",
+    version_date_cancer = "last", force_download = FALSE) {
     
     ## A suggest function from Bioconductor allowing for better resource
     ## querying
@@ -83,10 +84,12 @@ HPA_data_downloader <- function(tissue_type = c("both", "normal", "cancer"),
     dir_files <- ifelse(save_location == "", ".", save_location)
     
     ## Get list of normal files and then cancer files
-    norm_files <- list.files(dir_files, all.files = T)[grepl("normal_tissue",
-                                              list.files(dir_files, all.files = T))]
-    canc_files <- list.files(dir_files, all.files = T)[grepl("pathology",
-                                              list.files(dir_files, all.files = T))]
+    norm_files <- list.files(dir_files, all.files = TRUE)[grepl("normal_tissue",
+                                              list.files(dir_files,
+                                                         all.files = TRUE))]
+    canc_files <- list.files(dir_files, all.files = TRUE)[grepl("pathology",
+                                              list.files(dir_files,
+                                                         all.files = TRUE))]
     
     ## Remove dots if there
     norm_files <- gsub("^\\.", "", norm_files)
