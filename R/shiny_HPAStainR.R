@@ -176,7 +176,7 @@ shiny_HPAStainR <- function(hpa_dat, cancer_dat, cell_type_data = NULL) {
             tested_protein_column = as.logical(input$tested_protein_column),
             cancer_analysis = input$cancer_analysis,
             drop_na_row = as.logical(input$drop_na_rows_in),
-            test_type = as.character(input$test_type)
+            test_type = as.character(input$test_type),
             adjusted_pvals = as.logical(input$adjusted_pvals)
           )
         )
