@@ -69,7 +69,7 @@
 #' @import tidyr
 #' @importFrom scales percent
 #' @importFrom stringr str_detect str_split str_trim
-#' @importFrom stats chisq.test p.adjust quantile
+#' @importFrom stats chisq.test p.adjust quantile fisher.test
 #' @export
 
 
@@ -714,10 +714,11 @@ HPAStainR <- function(gene_list,
     if (!("p_val" %in% colnames(cell_type_out))) {
         cell_type_out <- cell_type_out %>% mutate(p_val = 1, p_val_adj = 1)
     }
-    
-    cell_type_out <- cell_type_out %>%
-        mutate(p_val = suppressWarnings(as.numeric(format.pval(p_val, round_to))),
-               p_val_adj = suppressWarnings(as.numeric(format.pval(p_val_adj, round_to))))
+    ## Results that were to significant were ruining the analysis formatting
+    ## below
+    # cell_type_out <- cell_type_out %>%
+    #     mutate(p_val = suppressWarnings(as.numeric(format.pval(p_val, round_to))),
+    #            p_val_adj = suppressWarnings(as.numeric(format.pval(p_val_adj, round_to))))
     
     
     
