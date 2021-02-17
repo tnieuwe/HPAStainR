@@ -23,4 +23,6 @@ utils::globalVariables(c("Cancer",
                          "stain_mean",
                          "stained",
                          "staining_score",
-                         "tissue_cell"))
+                         "tissue_cell",
+                         "cur_dat",
+                         "."))

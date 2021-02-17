@@ -31,7 +31,7 @@ Changes in Version 1.0.2 (2021-25-20)
     + Changed section of code crashing due to dplyr update.
 Changes in Version 1.0.3 (2021-02-03)
     + Changed read.table() in HPA_data_downloader.R to data.table's fread()
-Changes in Version 1.0.4 (YYYY-MM-DD)
+Changes in Version 1.0.4 (2021-2-17)
     + The first update in response to F1000 comments
     + Added dating arguments to HPA_data_downloader
         + Now when you have save_file set to true, the file will be stamped with
