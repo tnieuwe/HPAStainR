@@ -35,10 +35,10 @@ Changes in Version 1.0.4 (2021-2-17)
     + The first update in response to F1000 comments
     + Added dating arguments to HPA_data_downloader
         + Now when you have save_file set to true, the file will be stamped with
-        the date it was downloaded. This allows for reproducible access tot he
+        the date it was downloaded. This allows for reproducible access to the
         file you created.
         + To deal with dated files we now have the arguments
-        `version_date_normal` and `version_date` cancer, which allows users to
+        `version_date_normal` and `version_date_cancer`, which allows users to
         select which downloaded HPA data they want to use based on the date of
         downloading. The default to "last" which will search for the latest
         version of the files in the `save_location`
