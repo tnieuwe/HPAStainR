@@ -72,10 +72,6 @@
 #' @importFrom stats chisq.test p.adjust quantile fisher.test
 #' @export
 
-
-
-
-
 HPAStainR <- function(gene_list,
                       hpa_dat, cancer_dat = data.frame(),
                       cancer_analysis = c("normal", "cancer", "both"),
@@ -315,6 +311,15 @@ HPAStainR <- function(gene_list,
             cell_type_dat_per <- rbind(cell_type_dat_per, cancer_per)
         }
     }
+    
+    ## Before tibble creation catch and fix lack of `Not detected` column
+    if (!("Not detected" %in% colnames(cell_type_dat_per))) {
+        na_ind <- is.na(apply(cell_type_dat_per,1,sum))
+        `Not detected` <- ifelse(na_ind == TRUE, NA, 0)
+        cell_type_dat_per <- cbind(cell_type_dat_per, `Not detected`)
+        cell_type_dat_mat <- cbind(cell_type_dat_mat, `Not detected`)
+    }
+    
     
     
     ## Below is where we generate the final tibble----------------- 
@@ -626,7 +631,6 @@ HPAStainR <- function(gene_list,
     
     
     ##### DUPLICATION occurs below
-    
     #### CHI SQUARE CANCER ANALYSIS---------
     if (cancer_analysis == "both" | cancer_analysis == "Only") {
         sub_cell_type <- cell_type_out %>%
@@ -714,12 +718,6 @@ HPAStainR <- function(gene_list,
     if (!("p_val" %in% colnames(cell_type_out))) {
         cell_type_out <- cell_type_out %>% mutate(p_val = 1, p_val_adj = 1)
     }
-    ## Results that were to significant were ruining the analysis formatting
-    ## below
-    # cell_type_out <- cell_type_out %>%
-    #     mutate(p_val = suppressWarnings(as.numeric(format.pval(p_val, round_to))),
-    #            p_val_adj = suppressWarnings(as.numeric(format.pval(p_val_adj, round_to))))
-    
     
     
     ## Change names-----------------
