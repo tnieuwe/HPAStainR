@@ -53,4 +53,6 @@ Changes in Version 1.0.4 (2021-2-17)
         + Changed the output of the p-values to numeric instead of a character.
 Changes in Version 1.2.1 (2021-6-9)
     + Caught an error where not having `Not detected` column breaks the function
+Changes in Version 1.2.1 (2021-7-27)
+    + Included 'rmarkdown' package in Suggests 
         
