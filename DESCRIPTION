@@ -1,7 +1,7 @@
 Package: HPAStainR
 Title: Queries the Human Protein Atlas Staining Data for Multiple Proteins and
     Genes
-Version: 1.3.2
+Version: 1.4.0
 Authors@R: person(given = "Tim O.",
            family = "Nieuwenhuis",
            role = c("aut", "cre"),
