@@ -114,6 +114,11 @@ HPAStainR <- function(gene_list,
     ## A holdover from my personal pipeline
     scale_genes <- TRUE
     
+    ## Temporary fix for "Not representative" genes this will be incorporated
+    ## during the next release
+    ind <- hpa_dat$Level == "Not representative"
+    hpa_dat$Level[ind] <- "Not detected"
+    
     ## Select the correct test type
     test_type = test_type[1]
     
