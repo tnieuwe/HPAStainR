@@ -86,13 +86,25 @@ HPAStainR <- function(gene_list,
                       drop_na_row = FALSE,
                       test_type = c("fisher", "chi square"),
                       adjusted_pvals = TRUE) {
+    ### Hi Maisa, so this is the main function of HPAStainR, HPAStainR! Our
+    ### overall goal for this "rotation" you're doing here is to make the code
+    ### faster, while maintaining the current outputs. My advice would be to
+    ### see what areas of the code could be placed into nested functions
+    ### (turning these blocks of code into functions will make future changes,
+    ###  unit testing, and speed testing easier as well). I will do my best to
+    ### assist you in this project, but obviously this will also required your
+    ### own initiative and problem solving. However if you help me here I will
+    ### make you a co-author on this package will will be great for your future
+    ### career in my opinion! Thanks for doing this and always feel free to ping
+    ### me!
     
-    ## Catch issues
+    ### Catch issues
+    ## Is the HPA or Cancer dataframe ther or working
     cancer_analysis <- cancer_analysis[1]
     if (cancer_analysis == "normal" | cancer_analysis == "both") {
         if (!is.data.frame(hpa_dat)) {
             stop(paste0("Are you sure hpa_dat is a dataframe? Download through",
-                       "HPADownloader if you're having issues"))
+                       "HPADownloader if you're having issues or use hpar"))
         }
     }
     
@@ -104,20 +116,24 @@ HPAStainR <- function(gene_list,
     }
     ## In case no one select an option this will pick the default
     stringency <- stringency[1]
-    ## Easy way to make cancer only work, though inefficient
+    ### Maisa Note:
+    ## This was aneasy way to make cancer only analysis work, though inefficient, as it results
+    ## in both the cancer analysis and normal analysis running in tandem
+    ## this could be replaced probably through using a list and lapply.
     cancer_only <- FALSE
     if (cancer_analysis == "cancer") {
         cancer_analysis <- "both"
         cancer_only <- TRUE
     }
-    
+    ### Maisa Note:
     ## A holdover from my personal pipeline
+    ## this should be removed if possible
     scale_genes <- TRUE
     
     ## Select the correct test type
     test_type = test_type[1]
     
-    ## Make gene list robust to incongruencies---------- test if comma 
+    ### Make gene list robust to different inputs test if comma 
     ## separated or non comma separated
     
     if (!(str_detect(gene_list, ","))[1]) {
@@ -130,6 +146,8 @@ HPAStainR <- function(gene_list,
     gene_list <- toupper(gene_list)
     p_o_c <- percent_or_count[1]
     
+    ## This feels redundant as tissue level could replace the cell_o_tiss
+    ## object, but removing it is not high priority.
     if (tissue_level == TRUE) {
         cell_o_tiss <- "tissue_cell"
     } else {
@@ -155,7 +173,7 @@ HPAStainR <- function(gene_list,
     ## Subset just to genes of interest
     sub_dat <- subset(hpa_dat, hpa_dat$Gene.name %in% gene_list)
     
-    # Remove testis as their cell over stain and
+    # Remove testis as their cells over stain and remove NA cells
     sub_dat <- sub_dat %>% filter(Tissue != "testis", !is.na(Cell.type),
                                   tissue_cell != "N/A - N/A")
     
@@ -222,8 +240,12 @@ HPAStainR <- function(gene_list,
         cell_type_dat_per <- cell_type_dat_per/unique_counts
     }
     
+    ### cell_type_dat_per unit test here
+    ### cell_type_dat_per_A
     
     ## Below add column if the low medium or high columns don't exist--------
+    ### Maisa Note: Obviously this copy and paste malarky below is bad code
+    ### we should try to tighten it up.
     if (!("Low" %in% colnames(cell_type_dat_per))) {
         Low <- matrix(0, nrow = nrow(cell_type_dat_per))
         cell_type_dat_per <- cbind(cell_type_dat_per, Low)
@@ -261,7 +283,8 @@ HPAStainR <- function(gene_list,
         rm(High)
     }
     
-    
+    ### cell_type_dat_per unit test here
+    ### cell_type_dat_per_B
     
     ## Add all missing cell types, this allows you to see what cells there is no
     ## information for--------
@@ -280,6 +303,8 @@ HPAStainR <- function(gene_list,
     
     cell_type_dat_mat <- rbind(as.matrix(cell_type_dat_df), not_included_matrix)
     
+    ### Maisa Note: Overall Cancer code needs to be cleaned up some way so that
+    ### it isn't completely separate from the normal tissue code
     ## Adding CANCER dat
     if (cancer_analysis == "both" | cancer_analysis == "Only") {
         sub_cancer <- cancer_dat %>% filter(Gene.name %in% gene_list)
@@ -312,6 +337,10 @@ HPAStainR <- function(gene_list,
         }
     }
     
+    
+    ### cell_type_dat_per unit test here
+    ### cell_type_dat_per_C
+    
     ## Before tibble creation catch and fix lack of `Not detected` column
     if (!("Not detected" %in% colnames(cell_type_dat_per))) {
         na_ind <- is.na(apply(cell_type_dat_per,1,sum))
@@ -334,7 +363,7 @@ HPAStainR <- function(gene_list,
     mutate(staining_score = (High * 100) + (Medium * 50) + (Low * 25),
            num_genes = sum(gene_list %in% sub_dat$Gene.name)) %>% 
         arrange(desc(staining_score))
-    
+
     
     ## Prepare count data for joining
     cell_type_count <- as_tibble(cell_type_dat_mat, rownames = "cell_type") %>%
@@ -348,7 +377,8 @@ HPAStainR <- function(gene_list,
                                cell_type_count,
                                by = "cell_type")
     
-    
+    ### cell_type_out unit test here
+    ### cell_type_out_A    
     
     
     ## Change genes in column to only those detected-------------
