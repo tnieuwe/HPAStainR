@@ -446,15 +446,17 @@ HPAStainR <- function(gene_list,
         cell_type_out$genes <- paste0(prot_genes, collapse = ", ")
     }
     
-    
-    ## Add the option that gives a column if a gene is available
-    
     ## Tissue level determines if the analysis looks at cell types on a tissue
     ## level instead of a general
     ## level------
     
     ## This is ideal as cell types in different tissues, though similar, have
     ## different profiles.
+    
+    ### Maisa Note: Below is another large code duplication the main difference
+    ### being either the usage of "cell type" or the usage of "tissue_cell" this
+    ### is another location where code could be tightened up by possibly using
+    ### a function
     if (tissue_level == TRUE) {
         staining_dat <- sub_dat %>% filter(Level != "Not detected")
         staining_tf_df <- as.matrix.data.frame(
@@ -537,6 +539,10 @@ HPAStainR <- function(gene_list,
         }
         ## cancer end
     }
+    
+    ### Unit test staining_tf_df
+    ### staining_tf_df_A
+    
     
     ## For loop to replace T F with name
     for (col_n in seq_len(ncol(staining_tf_df))) {
