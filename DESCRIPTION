@@ -5,7 +5,7 @@ Version: 1.5.1
 Authors@R: person(given = "Tim O.",
            family = "Nieuwenhuis",
            role = c("aut", "cre"),
-           email = "tnieuwe1@jhmi.edu",
+           email = "timnieuwenhuis@ptd.net",
            comment = c(ORCID = "0000-0002-1995-3317"))
 Description: This package is built around the HPAStainR function. The purpose of
     the HPAStainR function is to query the visual staining data in the Human
